@@ -1,0 +1,169 @@
+Ich möchte eine Web Applikation, lauffähig standalone in einem Browser, die eine Konfigurationsdatei (config.txt) erzeugt.
+Die einzelnen Parameter dieser Konfigurationsdatei sollen einfach einzugeben sein.
+Die Konfigurationsdatei soll von lokal gelesen und auch geschrieben werden können.
+Auch soll es möglich sein diese über das FTP Protokoll (passive mode) zu lesen und zu schreiben.
+Dies ist ein Beispiel einer solchen Konfigurationsdatei mit den einzelnen Parametern:
+# config for LISYclock 2.35
+# lines starting with '#' are comments
+
+# ==================== TTS TEXT TO SPEECH DEFAULT PARAMETER ====================
+# ====== can be overwritten in event files (see below ) ========================
+TTS_WIT_TOKEN="KIY6326Q5XTBHAV6E6HSNLSG3653Q2XY"
+TTS_Voice="wit$Cooper"
+TTS_Style="default"
+TTS_Speed=80
+TTS_Pitch=80
+TTS_Gain=30
+TTS_SFXChar="robot"
+TTS_SFXEnv="none"
+
+# ==================== Events ====================
+#
+# syntax start time events: HH:MM-DD.MM.YYYY ==> <hour>:<minute>.<day>.<month>.<year>
+# OR
+#HH:MM:W ==> <hour>:<minute>:<weekday> with weekday 0..6 
+# 0 = Sunday | 1 = Monday | 2 = Tuesday | 3 = Wednesday | 4 = Thursday | 5 = Friday | 6 = Saturday
+#
+# setting to '**' or '*' instead of numbers will mean 'anytime' for this field
+#
+# if the user want just to play one file or let speak one sentence with the default speak options
+# it is possible to do this without having to craete a second file
+
+#possible comands:
+#EVENT_TTS=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"text to speak"
+#EVENT_MP3=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"mp3 file on SD card to play"
+#EVENT_BATCH=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"batchfile on SD to execute"
+#EVENT_DISPLAY=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"on | off"
+#EVENT_GI_LEDS=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"on | off"
+#EVENT_ATTRACT_LEDS=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"on | off"
+#
+#  examples
+#
+#EVENT_DISPLAYS=23:0:*,"off"
+#EVENT_TTS=23:0:*,"displays off"
+#EVENT_DISPLAYS=7:0:*,"on"
+#EVENT_TTS=7:0:*,"displays on"
+#
+#EVENT_MP3=40:*:*,"kuckuck.mp3"
+#EVENT_TTS=*:*:0,"on Sundays say this every minute"
+#EVENT_TTS=*:*:*,"this every minute each day"
+#EVENT_TTS=12:00-5.9.*,"bontangos Birthday"
+#EVENT_TTS=12:00-5.9.2063,"bontango is 100year old today"
+#
+#EVENT_BAT=18:51:*,"batchfile_001.txt"
+
+
+# ==================== Defaults ====================
+
+# all displays & LEDS off at 11pm, on at 7am via batchfile
+#EVENT_BATCH=23:0:*,"good_night_batch.txt"
+#EVENT_BATCH=7:0:*,"good_morning_batch.txt"
+
+# sync time to ntp server each night at 2 a clock (10 retries)
+EVENT_TIME=2:0:*,10
+
+# display brightness 0...7
+DISP_BRIGHT=1
+
+#FTP server defaults
+#FTP_SERVER_ENABLE=yes
+#FTP_USER=lisy
+#FTP_PWD=bontango
+
+# local timezone default
+# TIMEZONE="CET-1CEST,M3.5.0,M10.5.0/3"
+
+# weekday strings (must be 6 chars! fill up with spaces if shorter)
+# defaults
+#DAY_SUN="Sunday"
+#DAY_MON="Monday"
+#DAY_TUE="Tuesda"
+#DAY_WED="Wednes"
+#DAY_THU="Thursd"
+#DAY_FRI="Friday"
+#DAY_SAT="Saturd"
+
+# ==================== LED config ====================
+
+# GI LEDs are permanent on
+# 
+# use GI_LED <LED number>,<red 0..255>,<green 0..255>,<blue 0..255>
+# for white use same value for red,green,blue
+#
+# Black Hole
+GI_LED=1,100,100,100
+GI_LED=2,100,100,100
+GI_LED=5,100,100,100
+GI_LED=6,100,100,100
+GI_LED=7,100,100,100
+GI_LED=24,100,100,100
+GI_LED=25,100,100,100
+GI_LED=28,100,100,100
+GI_LED=29,100,100,100
+GI_LED=30,100,100,100
+#
+# Gottlieb Astronaut
+
+GI_LED=11,100,100,100
+GI_LED=12,100,100,100
+# Gottlieb
+GI_LED=9,100,100,100
+GI_LED=10,100,100,100
+
+#
+# ==================== attract mode ====================
+# 
+# five groups of LEDs with different blink rates & optional random activation
+
+# attract mode blink rate in ms
+AT1_BLINK_RATE=120
+AT2_BLINK_RATE=120
+AT3_BLINK_RATE=300
+AT4_BLINK_RATE=120
+AT5_BLINK_RATE=120
+# random LED activation for group2 (default off)
+
+AT3_RAND=1
+
+# attract mode LEDs
+# will be ON/OFF in this order or random (see option)
+
+
+AT1_LED=16,100,100,100
+AT1_LED=17,100,100,100
+AT1_LED=18,100,100,100
+AT1_LED=19,100,100,100
+AT1_LED=21,100,100,100
+AT1_LED=20,100,100,100
+
+
+
+AT2_LED=22,100,100,100
+AT2_LED=23,100,100,100
+AT2_LED=14,100,100,100
+AT2_LED=13,100,100,100
+AT2_LED=15,100,100,100
+AT2_LED=20,100,100,100
+
+
+AT4_LED=18,100,100,100
+AT4_LED=19,100,100,100
+AT4_LED=21,100,100,100
+AT4_LED=20,100,100,100
+
+
+
+AT5_LED=14,100,100,100
+AT5_LED=13,100,100,100
+AT5_LED=15,100,100,100
+AT5_LED=20,100,100,100
+
+
+# planets
+
+AT3_LED=3,100,0,0
+AT3_LED=4,100,100,0
+AT3_LED=8,0,0,100
+AT3_LED=26,100,100,100
+AT3_LED=27,100,100,100
+AT3_LED=31,0,100,0

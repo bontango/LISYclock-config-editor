@@ -1,0 +1,72 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+A standalone browser app (no server, no build step) for editing LISYclock 2.35 `config.txt` files. The entire application is a single self-contained `index.html` (~1095 lines). Open it directly in a browser — no local server needed.
+
+## Development
+
+No build tools, no package manager. Edit `index.html` directly and refresh the browser to test.
+
+**Testing manually:** Open `index.html` in a Chromium-based browser (File System Access API requires Chrome/Edge for the Save/Open dialogs; other browsers fall back to `<input type=file>` / `<a download>`).
+
+Reference config format is in `Readme.txt`.
+
+## Architecture
+
+All logic lives in the `<script>` block of `index.html`, organized in clearly labeled sections:
+
+| Section | Lines | Purpose |
+|---------|-------|---------|
+| STATE | ~259–301 | `state` object + `resetState()` |
+| CONFIG PARSER | ~307–398 | `parseConfig(text)` — reads config.txt into `state` |
+| CONFIG GENERATOR | ~404–535 | `generateConfig()` — serializes `state` back to config.txt format |
+| FILE I/O | ~541–648 | Open/Save/SaveAs/New using File System Access API with fallback |
+| RENDER: TTS | ~668–707 | Populates TTS tab; wires input listeners |
+| RENDER: GENERAL | ~713–799 | Populates General tab (FTP, timezone, weekday fields) |
+| LED ROW HELPER | ~805–878 | `createLedRow(ledObj, onRemove)` — shared by GI LEDs and Attract tabs |
+| RENDER: GI LEDs | ~884–900 | Renders `state.gi_leds` array |
+| RENDER: ATTRACT MODE | ~906–997 | Renders Bootstrap accordion for AT1–AT5 groups |
+| RENDER: EVENTS | ~1003–1071 | Renders `state.events` array |
+| RENDER ALL | ~1077–1083 | `renderAll()` calls all render functions |
+| INIT | ~1089–1091 | `resetState()` → `buildDaysFields()` → `renderAll()` |
+
+## Data Flow
+
+```
+config.txt text  →  parseConfig()  →  state  →  renderAll()  →  DOM
+user edits DOM   →  event listeners mutate state in-place
+Save button      →  generateConfig()  →  state  →  config.txt text
+```
+
+Render functions are **destructive** (they do `innerHTML = ''` and rebuild from `state`). DOM input listeners mutate the relevant `state` property directly in-place — there is no two-way binding framework.
+
+## Config File Format Quirks
+
+- Lines starting with `#` are commented out (disabled), not deleted
+- FTP block: no space after `#` → `#FTP_USER=lisy`
+- Timezone: space after `#` → `# TIMEZONE="..."`
+- Weekday values must be padded to exactly 6 chars (`pad6()` helper)
+- `EVENT_TIME` value is an unquoted number; all other `EVENT_*` types use a quoted string
+- Key names in the file use mixed case (e.g. `TTS_SFXChar`, `TTS_Voice`) but the parser normalizes to uppercase for matching
+- `_unknown` field in state exists as a placeholder; unknown config lines are silently skipped (round-trip fidelity is not a goal for unknown keys)
+
+## State Structure
+
+```js
+state = {
+  tts: { wit_token, voice, style, speed, pitch, gain, sfx_char, sfx_env },
+  events: [{ type, time, value }],           // type = 'TTS'|'MP3'|'BATCH'|'DISPLAY'|'TIME'|'GI_LEDS'|'ATTRACT_LEDS'
+  general: {
+    disp_bright,
+    ftp_enabled, ftp_user, ftp_pwd,
+    timezone_enabled, timezone,
+    days_enabled, days: { sun, mon, tue, wed, thu, fri, sat }
+  },
+  gi_leds: [{ led, r, g, b }],
+  attract: [5x { blink_rate, rand_enabled, rand, leds: [{ led, r, g, b }] }],
+  _fileHandle: null   // FileSystemFileHandle for Save (non-null after Open/SaveAs)
+}
+```
