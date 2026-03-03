@@ -12,7 +12,7 @@ No build tools, no package manager. Edit `index.html` directly and refresh the b
 
 **Testing manually:** Open `index.html` in a Chromium-based browser (File System Access API requires Chrome/Edge for the Save/Open dialogs; other browsers fall back to `<input type=file>` / `<a download>`).
 
-Reference config format is in `Readme.txt`.
+A reference `config.txt` (with all supported keys) is in the project root.
 
 ## Architecture
 

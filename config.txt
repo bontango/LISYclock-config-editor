@@ -1,8 +1,3 @@
-Ich möchte eine Web Applikation, lauffähig standalone in einem Browser, die eine Konfigurationsdatei (config.txt) erzeugt.
-Die einzelnen Parameter dieser Konfigurationsdatei sollen einfach einzugeben sein.
-Die Konfigurationsdatei soll von lokal gelesen und auch geschrieben werden können.
-Auch soll es möglich sein diese über das FTP Protokoll (passive mode) zu lesen und zu schreiben.
-Dies ist ein Beispiel einer solchen Konfigurationsdatei mit den einzelnen Parametern:
 # config for LISYclock 2.35
 # lines starting with '#' are comments
 
@@ -21,7 +16,7 @@ TTS_SFXEnv="none"
 #
 # syntax start time events: HH:MM-DD.MM.YYYY ==> <hour>:<minute>.<day>.<month>.<year>
 # OR
-#HH:MM:W ==> <hour>:<minute>:<weekday> with weekday 0..6 
+#HH:MM:W ==> <hour>:<minute>:<weekday> with weekday 0..6
 # 0 = Sunday | 1 = Monday | 2 = Tuesday | 3 = Wednesday | 4 = Thursday | 5 = Friday | 6 = Saturday
 #
 # setting to '**' or '*' instead of numbers will mean 'anytime' for this field
@@ -86,7 +81,7 @@ DISP_BRIGHT=1
 # ==================== LED config ====================
 
 # GI LEDs are permanent on
-# 
+#
 # use GI_LED <LED number>,<red 0..255>,<green 0..255>,<blue 0..255>
 # for white use same value for red,green,blue
 #
@@ -112,7 +107,7 @@ GI_LED=10,100,100,100
 
 #
 # ==================== attract mode ====================
-# 
+#
 # five groups of LEDs with different blink rates & optional random activation
 
 # attract mode blink rate in ms

@@ -73,7 +73,9 @@
 
 <!-- Navbar / Toolbar -->
 <nav class="navbar navbar-dark bg-dark px-3 py-2">
-  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.0</small></span>
+  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.01</small></span>
+  <span id="currentFileName" class="text-secondary text-truncate mx-auto"
+        style="max-width:40%; font-size:0.85rem;" title="">&#8212; no file open &#8212;</span>
   <div class="d-flex gap-2 flex-wrap">
     <button class="btn btn-outline-light btn-sm" id="btnOpen">&#128194; Open</button>
     <button class="btn btn-outline-light btn-sm" id="btnSave">&#128190; Save</button>
@@ -86,89 +88,26 @@
 <div class="container-fluid mt-3 px-3">
   <ul class="nav nav-tabs" id="mainTabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <a class="nav-link active" id="tab-tts" data-bs-toggle="tab" href="#tabTTS" role="tab">TTS Settings</a>
+      <a class="nav-link active" id="tab-general" data-bs-toggle="tab" href="#tabGeneral" role="tab">General</a>
     </li>
     <li class="nav-item" role="presentation">
       <a class="nav-link" id="tab-events" data-bs-toggle="tab" href="#tabEvents" role="tab">Events</a>
     </li>
     <li class="nav-item" role="presentation">
-      <a class="nav-link" id="tab-general" data-bs-toggle="tab" href="#tabGeneral" role="tab">General</a>
+      <a class="nav-link" id="tab-attract" data-bs-toggle="tab" href="#tabAttract" role="tab">Attract Mode</a>
     </li>
     <li class="nav-item" role="presentation">
       <a class="nav-link" id="tab-gi" data-bs-toggle="tab" href="#tabGI" role="tab">GI LEDs</a>
     </li>
     <li class="nav-item" role="presentation">
-      <a class="nav-link" id="tab-attract" data-bs-toggle="tab" href="#tabAttract" role="tab">Attract Mode</a>
+      <a class="nav-link" id="tab-tts" data-bs-toggle="tab" href="#tabTTS" role="tab">TTS Settings</a>
     </li>
   </ul>
 
   <div class="tab-content bg-white border border-top-0 rounded-bottom p-3">
 
-    <!-- ======================================================= TTS TAB -->
-    <div class="tab-pane fade show active" id="tabTTS" role="tabpanel">
-      <h5 class="mb-3">TTS Text-to-Speech Default Parameters</h5>
-      <div class="row g-3">
-        <div class="col-lg-7">
-          <label class="form-label">WIT.ai Access Token</label>
-          <input type="text" class="form-control font-monospace" id="tts_wit_token"
-            placeholder="e.g. KIY6326Q5XTBHAV6E6HSNLSG3653Q2XY">
-        </div>
-        <div class="col-lg-3 col-md-4">
-          <label class="form-label">Voice</label>
-          <input type="text" class="form-control" id="tts_voice" placeholder="e.g. wit$Cooper">
-        </div>
-        <div class="col-lg-2 col-md-4">
-          <label class="form-label">Style</label>
-          <input type="text" class="form-control" id="tts_style" placeholder="default">
-        </div>
-        <div class="col-lg-4 col-md-6">
-          <label class="form-label">
-            Speed &nbsp;<span class="range-value" id="tts_speed_val">80</span>
-            <small class="text-muted fw-normal">(0–200)</small>
-          </label>
-          <input type="range" class="form-range" id="tts_speed" min="0" max="200" step="1">
-        </div>
-        <div class="col-lg-4 col-md-6">
-          <label class="form-label">
-            Pitch &nbsp;<span class="range-value" id="tts_pitch_val">80</span>
-            <small class="text-muted fw-normal">(0–200)</small>
-          </label>
-          <input type="range" class="form-range" id="tts_pitch" min="0" max="200" step="1">
-        </div>
-        <div class="col-lg-4 col-md-6">
-          <label class="form-label">
-            Gain &nbsp;<span class="range-value" id="tts_gain_val">30</span>
-            <small class="text-muted fw-normal">(0–100)</small>
-          </label>
-          <input type="range" class="form-range" id="tts_gain" min="0" max="100" step="1">
-        </div>
-        <div class="col-md-3 col-sm-5">
-          <label class="form-label">SFX Char</label>
-          <input type="text" class="form-control" id="tts_sfx_char" placeholder="e.g. robot">
-        </div>
-        <div class="col-md-3 col-sm-5">
-          <label class="form-label">SFX Env</label>
-          <input type="text" class="form-control" id="tts_sfx_env" placeholder="e.g. none">
-        </div>
-      </div>
-    </div><!-- /tabTTS -->
-
-    <!-- ======================================================= EVENTS TAB -->
-    <div class="tab-pane fade" id="tabEvents" role="tabpanel">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="mb-0">Events</h5>
-        <button class="btn btn-primary btn-sm" id="btnAddEvent">+ Add Event</button>
-      </div>
-      <div class="alert alert-info py-2 small mb-3">
-        <strong>Time format:</strong> <code>HH:MM:W</code> (weekday 0=Sun…6=Sat) &nbsp;|&nbsp;
-        <code>HH:MM-DD.MM.YYYY</code> &nbsp;|&nbsp;
-        Use <code>*</code> for "any". &nbsp;Example: <code>*:*:0</code> = every minute on Sundays.
-      </div>
-      <div id="eventsContainer"></div>
-    </div><!-- /tabEvents -->
-
     <!-- ======================================================= GENERAL TAB -->
-    <div class="tab-pane fade" id="tabGeneral" role="tabpanel">
+    <div class="tab-pane fade show active" id="tabGeneral" role="tabpanel">
       <h5 class="mb-3">General Settings</h5>
       <div class="row g-3">
 
@@ -221,6 +160,29 @@
       </div>
     </div><!-- /tabGeneral -->
 
+    <!-- ======================================================= EVENTS TAB -->
+    <div class="tab-pane fade" id="tabEvents" role="tabpanel">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">Events</h5>
+        <button class="btn btn-primary btn-sm" id="btnAddEvent">+ Add Event</button>
+      </div>
+      <div class="alert alert-info py-2 small mb-3">
+        <strong>Time format:</strong> <code>HH:MM:W</code> (weekday 0=Sun…6=Sat) &nbsp;|&nbsp;
+        <code>HH:MM-DD.MM.YYYY</code> &nbsp;|&nbsp;
+        Use <code>*</code> for "any". &nbsp;Example: <code>*:*:0</code> = every minute on Sundays.
+      </div>
+      <div id="eventsContainer"></div>
+    </div><!-- /tabEvents -->
+
+    <!-- ======================================================= ATTRACT MODE TAB -->
+    <div class="tab-pane fade" id="tabAttract" role="tabpanel">
+      <h5 class="mb-1">Attract Mode</h5>
+      <p class="text-muted small mb-3">
+        Five groups of LEDs that blink at configurable rates. Enable random activation per group.
+      </p>
+      <div class="accordion" id="attractAccordion"></div>
+    </div><!-- /tabAttract -->
+
     <!-- ======================================================= GI LEDs TAB -->
     <div class="tab-pane fade" id="tabGI" role="tabpanel">
       <div class="d-flex justify-content-between align-items-center mb-2">
@@ -234,14 +196,109 @@
       <div id="giLedsContainer"></div>
     </div><!-- /tabGI -->
 
-    <!-- ======================================================= ATTRACT MODE TAB -->
-    <div class="tab-pane fade" id="tabAttract" role="tabpanel">
-      <h5 class="mb-1">Attract Mode</h5>
-      <p class="text-muted small mb-3">
-        Five groups of LEDs that blink at configurable rates. Enable random activation per group.
-      </p>
-      <div class="accordion" id="attractAccordion"></div>
-    </div><!-- /tabAttract -->
+    <!-- ======================================================= TTS TAB -->
+    <div class="tab-pane fade" id="tabTTS" role="tabpanel">
+      <h5 class="mb-3">TTS Text-to-Speech Default Parameters</h5>
+      <div class="row g-3">
+        <div class="col-lg-7">
+          <label class="form-label">WIT.ai Access Token</label>
+          <input type="text" class="form-control font-monospace" id="tts_wit_token"
+            placeholder="e.g. KIY6326Q5XTBHAV6E6HSNLSG3653Q2XY">
+        </div>
+        <div class="col-lg-3 col-md-4">
+          <label class="form-label">Voice</label>
+          <select class="form-select" id="tts_voice">
+            <optgroup label="US English Female">
+              <option value="wit$Remi">wit$Remi &mdash; Natural female (default)</option>
+              <option value="wit$Rebecca">wit$Rebecca &mdash; Warm female</option>
+              <option value="wit$Railey">wit$Railey &mdash; Bright female</option>
+              <option value="wit$Rubie">wit$Rubie &mdash; Energetic female</option>
+              <option value="wit$Disaffected">wit$Disaffected &mdash; Bored/flat tone</option>
+              <option value="wit$Cartoon Kid">wit$Cartoon Kid &mdash; Young cartoon voice</option>
+              <option value="wit$Cartoon Villain">wit$Cartoon Villain &mdash; Villainous cartoon</option>
+              <option value="wit$Kenyan Accent">wit$Kenyan Accent &mdash; Kenyan English female</option>
+            </optgroup>
+            <optgroup label="US English Male">
+              <option value="wit$Cody">wit$Cody &mdash; Friendly male</option>
+              <option value="wit$Charlie">wit$Charlie &mdash; Casual male</option>
+              <option value="wit$Cooper">wit$Cooper &mdash; Professional male</option>
+              <option value="wit$Carl">wit$Carl &mdash; Deep male</option>
+              <option value="wit$Surfer">wit$Surfer &mdash; Laid-back surfer</option>
+              <option value="wit$Vampire">wit$Vampire &mdash; Creepy vampire</option>
+              <option value="wit$Prospector">wit$Prospector &mdash; Old West prospector</option>
+              <option value="wit$Southern Accent">wit$Southern Accent &mdash; Southern US male</option>
+            </optgroup>
+            <optgroup label="UK English">
+              <option value="wit$Pirate">wit$Pirate &mdash; Swashbuckling pirate</option>
+              <option value="wit$Wizard">wit$Wizard &mdash; Mystical wizard</option>
+              <option value="wit$British Butler">wit$British Butler &mdash; Formal British</option>
+              <option value="wit$Cockney Accent">wit$Cockney Accent &mdash; London Cockney</option>
+            </optgroup>
+            <optgroup label="Canadian English">
+              <option value="wit$Rosie">wit$Rosie &mdash; Friendly Canadian female</option>
+              <option value="wit$Colin">wit$Colin &mdash; Friendly Canadian male</option>
+            </optgroup>
+            <optgroup label="Special">
+              <option value="wit$Cartoon Baby">wit$Cartoon Baby &mdash; Baby cartoon voice</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="col-lg-2 col-md-4">
+          <label class="form-label">Style</label>
+          <select class="form-select" id="tts_style">
+            <option value="default">default &mdash; Normal speaking voice</option>
+            <option value="soft">soft &mdash; Gentle, quiet tone</option>
+            <option value="formal">formal &mdash; Professional, clear</option>
+            <option value="fast">fast &mdash; Quick speaking pace</option>
+            <option value="projected">projected &mdash; Loud, clear voice</option>
+          </select>
+          <small class="text-muted">Not all voices support all styles</small>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <label class="form-label">
+            Speed &nbsp;<span class="range-value" id="tts_speed_val">80</span>
+            <small class="text-muted fw-normal">(0–200)</small>
+          </label>
+          <input type="range" class="form-range" id="tts_speed" min="0" max="200" step="1">
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <label class="form-label">
+            Pitch &nbsp;<span class="range-value" id="tts_pitch_val">80</span>
+            <small class="text-muted fw-normal">(0–200)</small>
+          </label>
+          <input type="range" class="form-range" id="tts_pitch" min="0" max="200" step="1">
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <label class="form-label">
+            Gain &nbsp;<span class="range-value" id="tts_gain_val">30</span>
+            <small class="text-muted fw-normal">(0–100)</small>
+          </label>
+          <input type="range" class="form-range" id="tts_gain" min="0" max="100" step="1">
+        </div>
+        <div class="col-md-3 col-sm-5">
+          <label class="form-label">SFX Char</label>
+          <select class="form-select" id="tts_sfx_char">
+            <option value="none">none &mdash; No effect (default)</option>
+            <option value="chipmunk">chipmunk &mdash; High-pitched squeaky voice</option>
+            <option value="monster">monster &mdash; Deep growly voice</option>
+            <option value="daemon">daemon &mdash; Dark demonic voice</option>
+            <option value="robot">robot &mdash; Mechanical robotic voice</option>
+            <option value="alien">alien &mdash; Otherworldly effect</option>
+          </select>
+        </div>
+        <div class="col-md-3 col-sm-5">
+          <label class="form-label">SFX Env</label>
+          <select class="form-select" id="tts_sfx_env">
+            <option value="none">none &mdash; No effect (default)</option>
+            <option value="reverb">reverb &mdash; Standard reverb</option>
+            <option value="room">room &mdash; Small room acoustics</option>
+            <option value="cathedral">cathedral &mdash; Large hall echo</option>
+            <option value="radio">radio &mdash; Radio/telephone quality</option>
+            <option value="phone">phone &mdash; Phone call simulation</option>
+          </select>
+        </div>
+      </div>
+    </div><!-- /tabTTS -->
 
   </div><!-- /tab-content -->
 </div><!-- /container -->
@@ -540,6 +597,12 @@ function generateConfig() {
 
 const hasFileSystemAccess = typeof window.showOpenFilePicker === 'function';
 
+function updateFileDisplay(name) {
+  const el = document.getElementById('currentFileName');
+  el.textContent = name || '\u2014 no file open \u2014';
+  el.title = name || '';
+}
+
 async function openFile() {
   try {
     if (hasFileSystemAccess) {
@@ -552,6 +615,7 @@ async function openFile() {
       const text = await file.text();
       parseConfig(text);
       renderAll();
+      updateFileDisplay(file.name);
       showToast('Loaded: ' + file.name, 'success');
     } else {
       // Fallback: hidden file input
@@ -569,6 +633,7 @@ document.getElementById('fileInput').addEventListener('change', function () {
   reader.onload = (ev) => {
     parseConfig(ev.target.result);
     renderAll();
+    updateFileDisplay(file.name);
     showToast('Loaded: ' + file.name, 'success');
   };
   reader.readAsText(file);
@@ -590,6 +655,7 @@ async function saveFile() {
       const writable = await handle.createWritable();
       await writable.write(text);
       await writable.close();
+      updateFileDisplay(handle.name);
       showToast('Saved: ' + handle.name, 'success');
     } else {
       triggerDownload(text, 'config.txt');
@@ -612,6 +678,7 @@ async function saveFileAs() {
       const writable = await handle.createWritable();
       await writable.write(text);
       await writable.close();
+      updateFileDisplay(handle.name);
       showToast('Saved as: ' + handle.name, 'success');
     } else {
       triggerDownload(text, 'config.txt');
@@ -638,6 +705,7 @@ function newConfig() {
   if (!confirm('Reset all settings to defaults?')) return;
   resetState();
   renderAll();
+  updateFileDisplay('');
   showToast('New config created with defaults.', 'info');
 }
 
