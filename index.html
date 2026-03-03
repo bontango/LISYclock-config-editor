@@ -73,7 +73,7 @@
 
 <!-- Navbar / Toolbar -->
 <nav class="navbar navbar-dark bg-dark px-3 py-2">
-  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.01</small></span>
+  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.02</small></span>
   <span id="currentFileName" class="text-secondary text-truncate mx-auto"
         style="max-width:40%; font-size:0.85rem;" title="">&#8212; no file open &#8212;</span>
   <div class="d-flex gap-2 flex-wrap">
@@ -1080,6 +1080,22 @@ const EVENT_PH = {
   ATTRACT_LEDS: 'on or off'
 };
 
+function parseEventTime(str) {
+  // Weekday format: HH:MM:W
+  const wm = /^(\*|\d+):(\*|\d+):(\*|[0-6])$/.exec(str);
+  if (wm) return { hh: wm[1], mm: wm[2], wd: wm[3], dd: '*', mo: '*', yyyy: '*' };
+  // Date format: HH:MM-DD.MM.YYYY
+  const dm = /^(\*|\d+):(\*|\d+)-(\*|\d+)\.(\*|\d+)\.(\*|\d+)$/.exec(str);
+  if (dm) return { hh: dm[1], mm: dm[2], wd: '*', dd: dm[3], mo: dm[4], yyyy: dm[5] };
+  return { hh: '*', mm: '*', wd: '*', dd: '*', mo: '*', yyyy: '*' };
+}
+
+function composeEventTime(hh, mm, wd, dd, mo, yyyy) {
+  if (wd !== '*') return `${hh}:${mm}:${wd}`;
+  if (dd === '*' && mo === '*' && yyyy === '*') return `${hh}:${mm}:*`;
+  return `${hh}:${mm}-${dd}.${mo}.${yyyy}`;
+}
+
 function createEventRow(evObj, index) {
   const div = document.createElement('div');
   div.className = 'event-row';
@@ -1088,27 +1104,73 @@ function createEventRow(evObj, index) {
     `<option value="${t}"${evObj.type === t ? ' selected' : ''}>${t}</option>`
   ).join('');
 
+  const pt = parseEventTime(evObj.time);
+  const dateDisabled = pt.wd !== '*' ? ' disabled' : '';
+
+  function numOpts(from, to, cur) {
+    let s = `<option value="*"${'*' == cur ? ' selected' : ''}>*</option>`;
+    for (let i = from; i <= to; i++)
+      s += `<option value="${i}"${String(i) == cur ? ' selected' : ''}>${i}</option>`;
+    return s;
+  }
+
+  const wdLabels = ['* (any day)', '0 (Sunday)', '1 (Monday)', '2 (Tuesday)',
+                    '3 (Wednesday)', '4 (Thursday)', '5 (Friday)', '6 (Saturday)'];
+  const wdOpts = wdLabels.map((lbl, i) => {
+    const val = i === 0 ? '*' : String(i - 1);
+    return `<option value="${val}"${val == pt.wd ? ' selected' : ''}>${lbl}</option>`;
+  }).join('');
+
+  const curYear = new Date().getFullYear();
+  let yyyyOpts = `<option value="*"${'*' == pt.yyyy ? ' selected' : ''}>*</option>`;
+  for (let y = curYear; y <= 2100; y++)
+    yyyyOpts += `<option value="${y}"${String(y) == pt.yyyy ? ' selected' : ''}>${y}</option>`;
+
   div.innerHTML = `
     <select class="form-select form-select-sm" style="width:130px" data-f="type">
       ${typeOpts}
     </select>
-    <input type="text" class="form-control form-control-sm" style="min-width:130px;flex:1"
-      placeholder="HH:MM:W or HH:MM-DD.MM.YYYY" value="${escHtml(evObj.time)}" data-f="time">
+    <div class="d-flex gap-1 align-items-center flex-wrap">
+      <select class="form-select form-select-sm" style="width:72px" data-f="t-hh" title="Hour">${numOpts(0, 23, pt.hh)}</select>
+      <select class="form-select form-select-sm" style="width:72px" data-f="t-mm" title="Minute">${numOpts(0, 59, pt.mm)}</select>
+      <select class="form-select form-select-sm" style="width:105px" data-f="t-wd" title="Weekday">${wdOpts}</select>
+      <select class="form-select form-select-sm" style="width:72px" data-f="t-dd" title="Day"${dateDisabled}>${numOpts(1, 31, pt.dd)}</select>
+      <select class="form-select form-select-sm" style="width:72px" data-f="t-mo" title="Month"${dateDisabled}>${numOpts(1, 12, pt.mo)}</select>
+      <select class="form-select form-select-sm" style="width:90px" data-f="t-yyyy" title="Year"${dateDisabled}>${yyyyOpts}</select>
+    </div>
     <input type="text" class="form-control form-control-sm" style="min-width:140px;flex:2"
       placeholder="${EVENT_PH[evObj.type] || ''}" value="${escHtml(evObj.value)}" data-f="value">
     <button class="btn btn-outline-danger btn-sm" title="Remove">&#10005;</button>`;
 
   const typeEl  = div.querySelector('[data-f="type"]');
-  const timeEl  = div.querySelector('[data-f="time"]');
+  const selHH   = div.querySelector('[data-f="t-hh"]');
+  const selMM   = div.querySelector('[data-f="t-mm"]');
+  const selWD   = div.querySelector('[data-f="t-wd"]');
+  const selDD   = div.querySelector('[data-f="t-dd"]');
+  const selMo   = div.querySelector('[data-f="t-mo"]');
+  const selYYYY = div.querySelector('[data-f="t-yyyy"]');
   const valEl   = div.querySelector('[data-f="value"]');
   const remBtn  = div.querySelector('button');
 
+  function updateTime() {
+    evObj.time = composeEventTime(selHH.value, selMM.value, selWD.value,
+                                  selDD.value, selMo.value, selYYYY.value);
+  }
+
+  selWD.addEventListener('change', () => {
+    const dateModeEnabled = selWD.value === '*';
+    selDD.disabled   = !dateModeEnabled;
+    selMo.disabled   = !dateModeEnabled;
+    selYYYY.disabled = !dateModeEnabled;
+    updateTime();
+  });
+  [selHH, selMM, selDD, selMo, selYYYY].forEach(s => s.addEventListener('change', updateTime));
+
   typeEl.addEventListener('change', () => {
-    evObj.type     = typeEl.value;
+    evObj.type        = typeEl.value;
     valEl.placeholder = EVENT_PH[typeEl.value] || '';
   });
-  timeEl.addEventListener('input', () => { evObj.time  = timeEl.value; });
-  valEl.addEventListener('input',  () => { evObj.value = valEl.value;  });
+  valEl.addEventListener('input', () => { evObj.value = valEl.value; });
   remBtn.addEventListener('click', () => {
     state.events.splice(index, 1);
     renderEvents();
@@ -1120,6 +1182,24 @@ function createEventRow(evObj, index) {
 function renderEvents() {
   const container = document.getElementById('eventsContainer');
   container.innerHTML = '';
+
+  // Header row
+  const hdr = document.createElement('div');
+  hdr.className = 'd-flex align-items-center gap-1 px-2 mb-1';
+  hdr.style.cssText = 'font-size:.75rem;color:#6c757d;font-weight:600';
+  hdr.innerHTML = `
+    <span style="width:130px">Event</span>
+    <div class="d-flex gap-1" style="flex:none">
+      <span style="width:72px">hour</span>
+      <span style="width:72px">minute</span>
+      <span style="width:105px">weekday</span>
+      <span style="width:72px">day</span>
+      <span style="width:72px">month</span>
+      <span style="width:90px">year</span>
+    </div>
+    <span style="flex:2">action</span>`;
+  container.appendChild(hdr);
+
   state.events.forEach((ev, i) => {
     container.appendChild(createEventRow(ev, i));
   });
