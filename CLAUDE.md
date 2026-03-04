@@ -53,6 +53,19 @@ Render functions are **destructive** (they do `innerHTML = ''` and rebuild from 
 - Key names in the file use mixed case (e.g. `TTS_SFXChar`, `TTS_Voice`) but the parser normalizes to uppercase for matching
 - `_unknown` field in state exists as a placeholder; unknown config lines are silently skipped (round-trip fidelity is not a goal for unknown keys)
 
+## Koordination mit dem Partnerprojekt
+
+Die Firmware befindet sich in `../LISYclock/` (relativ zu diesem Verzeichnis).
+
+**API-Vertrag:** [`../API.md`](../API.md) ist die Single Source of Truth für alle HTTP-Endpunkte.
+
+**Erwartete API-Version:** `1` (definiert als `EXPECTED_API_VERSION` in `index.html`)
+
+**Regeln:**
+- Wenn du einen neuen Endpunkt im Editor nutzen möchtest, muss er zuerst in der Firmware (`../LISYclock/main/httpserver.c`) implementiert und in `../API.md` dokumentiert werden.
+- Der Editor prüft beim Verbindungstest (`clockTestConnection`) ob `api_version` im `/status`-Response mit `EXPECTED_API_VERSION` übereinstimmt und zeigt eine Warnung bei Mismatch.
+- Default-Port ist **8080** (Port 80 ist intern von wifi-manager belegt).
+
 ## State Structure
 
 ```js

@@ -54,6 +54,17 @@
       padding: 1px 2px;
       cursor: pointer;
     }
+    .status-dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 1px solid #666;
+      background: #ccc;
+      vertical-align: middle;
+    }
+    .status-dot.ok   { background: #22c55e; border-color: #16a34a; }
+    .status-dot.fail { background: #ef4444; border-color: #dc2626; }
   </style>
 </head>
 <body class="bg-light">
@@ -73,7 +84,7 @@
 
 <!-- Navbar / Toolbar -->
 <nav class="navbar navbar-dark bg-dark px-3 py-2">
-  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.02</small></span>
+  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.04</small></span>
   <span id="currentFileName" class="text-secondary text-truncate mx-auto"
         style="max-width:40%; font-size:0.85rem;" title="">&#8212; no file open &#8212;</span>
   <div class="d-flex gap-2 flex-wrap">
@@ -88,7 +99,10 @@
 <div class="container-fluid mt-3 px-3">
   <ul class="nav nav-tabs" id="mainTabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <a class="nav-link active" id="tab-general" data-bs-toggle="tab" href="#tabGeneral" role="tab">General</a>
+      <a class="nav-link active" id="tab-clock" data-bs-toggle="tab" href="#tabClock" role="tab">Clock</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="tab-general" data-bs-toggle="tab" href="#tabGeneral" role="tab">General</a>
     </li>
     <li class="nav-item" role="presentation">
       <a class="nav-link" id="tab-events" data-bs-toggle="tab" href="#tabEvents" role="tab">Events</a>
@@ -107,7 +121,7 @@
   <div class="tab-content bg-white border border-top-0 rounded-bottom p-3">
 
     <!-- ======================================================= GENERAL TAB -->
-    <div class="tab-pane fade show active" id="tabGeneral" role="tabpanel">
+    <div class="tab-pane fade" id="tabGeneral" role="tabpanel">
       <h5 class="mb-3">General Settings</h5>
       <div class="row g-3">
 
@@ -299,6 +313,73 @@
         </div>
       </div>
     </div><!-- /tabTTS -->
+
+    <!-- ======================================================= CLOCK TAB -->
+    <div class="tab-pane fade show active" id="tabClock" role="tabpanel">
+      <h5 class="mb-3">Clock Connection</h5>
+      <div class="row g-3">
+
+        <!-- Connection -->
+        <div class="col-md-4 col-sm-6">
+          <label class="form-label">IP Address</label>
+          <input type="text" class="form-control font-monospace" id="clock_ip" placeholder="e.g. 192.168.1.100">
+        </div>
+
+        <div class="col-md-4 col-sm-6 d-flex align-items-end gap-2">
+          <button class="btn btn-outline-primary btn-sm" id="btnClockTest">Connect Clock</button>
+          <span class="status-dot" id="clockStatusDot" title="Not tested"></span>
+          <span class="small text-muted" id="clockStatusText"></span>
+        </div>
+
+        <!-- Config transfer -->
+        <div class="col-12"><hr class="my-1">
+          <h6 class="mt-2">Config Transfer</h6>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-success btn-sm" id="btnClockUploadConfig">Upload Config to Clock</button>
+            <button class="btn btn-outline-success btn-sm" id="btnClockDownloadConfig">Download Config from Clock</button>
+          </div>
+        </div>
+
+        <!-- Reboot Clock -->
+        <div class="col-12"><hr class="my-1">
+          <h6 class="mt-3">Reboot Clock</h6>
+          <div class="d-flex gap-2 align-items-center">
+            <button class="btn btn-danger btn-sm" id="btnClockReboot">Reboot Clock</button>
+            <span class="small text-muted">Reboots the clock.</span>
+          </div>
+        </div>
+
+        <!-- Update Firmware -->
+        <div class="col-12"><hr class="my-1">
+          <h6 class="mt-3">Update Firmware</h6>
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <input type="file" accept=".bin" class="form-control form-control-sm" id="clockUpdateInput" style="max-width:350px">
+            <button class="btn btn-warning btn-sm" id="btnClockUpdate">Update &amp; Reboot</button>
+            <span class="small text-muted" id="clockUpdateStatus"></span>
+          </div>
+        </div>
+
+        <!-- File upload -->
+        <div class="col-12"><hr class="my-1">
+          <h6 class="mt-3">Upload File to Clock</h6>
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <input type="file" class="form-control form-control-sm" id="clockFileInput" style="max-width:350px">
+            <button class="btn btn-primary btn-sm" id="btnClockUploadFile">Upload File</button>
+            <span class="small text-muted" id="clockFileStatus"></span>
+          </div>
+        </div>
+
+        <!-- SD Card Files -->
+        <div class="col-12"><hr class="my-1">
+          <h6 class="mt-3">SD Card Files</h6>
+          <div class="d-flex gap-2 align-items-center mb-2">
+            <button class="btn btn-outline-secondary btn-sm" id="btnClockRefreshFiles">Refresh</button>
+          </div>
+          <div id="clockFilesList"></div>
+        </div>
+
+      </div>
+    </div><!-- /tabClock -->
 
   </div><!-- /tab-content -->
 </div><!-- /container -->
@@ -1219,6 +1300,257 @@ function escHtml(s) {
 }
 
 // =============================================================================
+// CLOCK TAB
+// =============================================================================
+
+const EXPECTED_API_VERSION = 2; // Must match HTTP_API_VERSION in LISYclock/main/httpserver.h and ESP32_source/API.md
+
+function clockBaseUrl() {
+  const ip = document.getElementById('clock_ip').value.trim();
+  return `http://${ip}:8080`;
+}
+
+function setClockStatus(ok, text) {
+  const dot = document.getElementById('clockStatusDot');
+  dot.className = 'status-dot' + (ok === true ? ' ok' : ok === false ? ' fail' : '');
+  dot.title = text || '';
+  document.getElementById('clockStatusText').textContent = text || '';
+}
+
+async function clockTestConnection() {
+  const ip = document.getElementById('clock_ip').value.trim();
+  if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
+  setClockStatus(null, 'Connecting\u2026');
+  try {
+    // Retry loop: first attempt may time out if the ESP32's TCP stack needs
+    // time to establish the initial connection (modem sleep / SYN retransmit).
+    let resp;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 6000);
+      try {
+        resp = await fetch(clockBaseUrl() + '/status', { signal: ctrl.signal });
+        clearTimeout(timer);
+        break; // success
+      } catch (e) {
+        clearTimeout(timer);
+        if (attempt === 1 || e.name !== 'AbortError') throw e;
+        setClockStatus(null, 'Retrying\u2026');
+      }
+    }
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    let statusText = 'Connected' + (data.version ? ' (' + data.version.trim() + ')' : '');
+    if (data.api_version !== undefined && data.api_version !== EXPECTED_API_VERSION) {
+      statusText += ' — API version mismatch (firmware: ' + data.api_version + ', editor expects: ' + EXPECTED_API_VERSION + ')';
+      setClockStatus(false, statusText);
+      showToast('API version mismatch: firmware v' + data.api_version + ', editor expects v' + EXPECTED_API_VERSION + '. Some features may not work.', 'warning');
+    } else {
+      setClockStatus(true, statusText);
+      showToast('Connected to clock.', 'success');
+    }
+  } catch (err) {
+    const msg = err.name === 'AbortError' ? 'Timeout' : err.message;
+    setClockStatus(false, msg);
+    showToast('Connection failed: ' + msg, 'danger');
+  }
+}
+
+async function clockUploadConfig() {
+  const ip = document.getElementById('clock_ip').value.trim();
+  if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
+  try {
+    const text = generateConfig();
+    const resp = await fetch(clockBaseUrl() + '/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: text
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    showToast('Config uploaded to clock.', 'success');
+  } catch (err) {
+    showToast('Upload failed: ' + err.message, 'danger');
+  }
+}
+
+async function clockDownloadConfig() {
+  const ip = document.getElementById('clock_ip').value.trim();
+  if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
+  try {
+    const resp = await fetch(clockBaseUrl() + '/config');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const text = await resp.text();
+    parseConfig(text);
+    renderAll();
+    updateFileDisplay('config.txt (from clock)');
+    showToast('Config downloaded from clock.', 'success');
+  } catch (err) {
+    showToast('Download failed: ' + err.message, 'danger');
+  }
+}
+
+async function clockUploadFile() {
+  const ip = document.getElementById('clock_ip').value.trim();
+  if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
+  const fileInput = document.getElementById('clockFileInput');
+  const file = fileInput.files[0];
+  if (!file) { showToast('Please select a file.', 'warning'); return; }
+  const statusEl = document.getElementById('clockFileStatus');
+  statusEl.textContent = 'Uploading\u2026';
+  try {
+    const body = await file.arrayBuffer();
+    const resp = await fetch(clockBaseUrl() + '/files/' + encodeURIComponent(file.name), {
+      method: 'PUT',
+      body: body
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    statusEl.textContent = 'Uploaded: ' + file.name;
+    showToast('File uploaded: ' + file.name, 'success');
+  } catch (err) {
+    statusEl.textContent = 'Failed';
+    showToast('File upload failed: ' + err.message, 'danger');
+  }
+}
+
+async function clockReboot() {
+  if (!confirm('Really reboot the clock?')) return;
+  const ip = document.getElementById('clock_ip').value.trim();
+  if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
+  try {
+    const resp = await fetch(clockBaseUrl() + '/reboot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{"confirm":"reboot"}'
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    showToast('Reboot command sent. Clock is restarting\u2026', 'success');
+  } catch (err) {
+    showToast('Reboot failed: ' + err.message, 'danger');
+  }
+}
+
+async function clockUpdateFirmware() {
+  const ip = document.getElementById('clock_ip').value.trim();
+  if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
+  const fileInput = document.getElementById('clockUpdateInput');
+  const file = fileInput.files[0];
+  if (!file) { showToast('Please select a .bin file.', 'warning'); return; }
+  if (!file.name.toLowerCase().endsWith('.bin')) {
+    showToast('Only .bin files are allowed for firmware update.', 'warning');
+    return;
+  }
+  const statusEl = document.getElementById('clockUpdateStatus');
+  statusEl.textContent = 'Uploading\u2026';
+  try {
+    const body = await file.arrayBuffer();
+    const resp = await fetch(clockBaseUrl() + '/update', {
+      method: 'POST',
+      body: body
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    statusEl.textContent = 'Done — clock is rebooting.';
+    showToast('Firmware uploaded. Clock is rebooting\u2026', 'success');
+  } catch (err) {
+    statusEl.textContent = 'Failed';
+    showToast('Firmware update failed: ' + err.message, 'danger');
+  }
+}
+
+async function clockRefreshFiles() {
+  const ip = document.getElementById('clock_ip').value.trim();
+  if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
+  const container = document.getElementById('clockFilesList');
+  container.textContent = 'Loading\u2026';
+  try {
+    const resp = await fetch(clockBaseUrl() + '/files');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    const files = data.files || [];
+    if (files.length === 0) {
+      container.textContent = 'No files on SD card.';
+      return;
+    }
+    const table = document.createElement('table');
+    table.className = 'table table-sm table-bordered';
+    table.innerHTML = '<thead><tr><th>Name</th><th>Size</th><th></th></tr></thead>';
+    const tbody = document.createElement('tbody');
+    for (const f of files) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="font-monospace">${escHtml(f.name)}</td>` +
+                     `<td class="text-end">${f.size}</td>` +
+                     `<td class="d-flex gap-1">` +
+                       `<button class="btn btn-outline-secondary btn-sm" onclick="clockDownloadSdFile(${JSON.stringify(f.name)})">&#x2193;</button>` +
+                       `<button class="btn btn-outline-secondary btn-sm" onclick="clockRenameFile(${JSON.stringify(f.name)})">Rename</button>` +
+                     `</td>`;
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    container.innerHTML = '';
+    container.appendChild(table);
+  } catch (err) {
+    container.textContent = '';
+    showToast('Failed to list files: ' + err.message, 'danger');
+  }
+}
+
+async function clockDownloadSdFile(name) {
+  const ip = document.getElementById('clock_ip').value.trim();
+  if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
+  try {
+    const resp = await fetch(clockBaseUrl() + '/files/' + encodeURIComponent(name));
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    showToast('Download failed: ' + err.message, 'danger');
+  }
+}
+
+async function clockRenameFile(oldName) {
+  const newName = prompt('New name:', oldName);
+  if (!newName || newName === oldName) return;
+  const ip = document.getElementById('clock_ip').value.trim();
+  if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
+  try {
+    const resp = await fetch(clockBaseUrl() + '/rename', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ old_name: oldName, new_name: newName })
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    showToast('Renamed "' + oldName + '" to "' + newName + '".', 'success');
+    clockRefreshFiles();
+  } catch (err) {
+    showToast('Rename failed: ' + err.message, 'danger');
+  }
+}
+
+function renderClock() {
+  // Restore saved IP from localStorage
+  const savedIp = localStorage.getItem('lisyclock_ip');
+  if (savedIp) document.getElementById('clock_ip').value = savedIp;
+}
+
+// Clock input listeners — persist IP to localStorage
+document.getElementById('clock_ip').addEventListener('input', function () {
+  localStorage.setItem('lisyclock_ip', this.value.trim());
+});
+
+// Clock button wiring
+document.getElementById('btnClockTest').addEventListener('click', clockTestConnection);
+document.getElementById('btnClockUploadConfig').addEventListener('click', clockUploadConfig);
+document.getElementById('btnClockDownloadConfig').addEventListener('click', clockDownloadConfig);
+document.getElementById('btnClockUploadFile').addEventListener('click', clockUploadFile);
+document.getElementById('btnClockReboot').addEventListener('click', clockReboot);
+document.getElementById('btnClockUpdate').addEventListener('click', clockUpdateFirmware);
+document.getElementById('btnClockRefreshFiles').addEventListener('click', clockRefreshFiles);
+
+// =============================================================================
 // RENDER ALL
 // =============================================================================
 
@@ -1228,6 +1560,7 @@ function renderAll() {
   renderGILeds();
   renderAttract();
   renderEvents();
+  renderClock();
 }
 
 // =============================================================================
