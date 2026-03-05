@@ -28,7 +28,7 @@ Der **LISYclock Config Editor** ist ein Werkzeug zum komfortablen Bearbeiten der
 - Einfach `index.html` im Browser öffnen und loslegen
 - Unterstützt direkten Upload/Download zur LISYclock-Hardware über HTTP
 
-*(Screenshot: Gesamtansicht des Editors mit geöffneter Konfigurationsdatei)*
+![Gesamtansicht des Editors mit geöffneter Konfigurationsdatei](pics/Full%20view%20of%20the%20editor%20with%20an%20open%20configuration%20file.jpg)
 
 ---
 
@@ -48,8 +48,6 @@ Der **LISYclock Config Editor** ist ein Werkzeug zum komfortablen Bearbeiten der
 
 > **Wichtig:** Für die direkte Kommunikation mit der LISYclock (Tab „Clock") muss die Datei über `file://` geöffnet werden – **nicht** über HTTPS. Hintergrund: Browser blockieren HTTP-Anfragen (zur Uhr) von HTTPS-Seiten aus Sicherheitsgründen.
 
-*(Screenshot: index.html im Datei-Explorer, Öffnen im Browser)*
-
 ---
 
 ## 3. Dateioperationen
@@ -65,15 +63,11 @@ Die Schaltflächen in der **Navigationsleiste** (oben) steuern alle Dateioperati
 
 Der **aktuelle Dateiname** wird in der Mitte der Navigationsleiste angezeigt. Solange keine Datei geöffnet wurde, erscheint dort „(keine Datei)".
 
-*(Screenshot: Navigationsleiste mit Dateiname)*
-
 ---
 
 ## 4. Tab: Clock
 
 Dieser Tab ermöglicht die direkte Kommunikation mit der LISYclock-Hardware über das lokale Netzwerk.
-
-*(Screenshot: Clock-Tab mit grüner Statusanzeige)*
 
 ### IP-Adresse
 
@@ -125,7 +119,7 @@ Wenn der Editor über eine HTTPS-URL geöffnet wird, blockiert der Browser alle 
 
 Allgemeine Einstellungen der LISYclock.
 
-*(Screenshot: General-Tab)*
+![General-Tab](pics/General%20tab.jpg)
 
 ### Display-Helligkeit
 
@@ -163,7 +157,7 @@ Beispiel (Deutsch): `So`, `Mo`, `Di`, `Mi`, `Do`, `Fr`, `Sa`
 
 Events definieren zeitgesteuerte Aktionen der LISYclock.
 
-*(Screenshot: Events-Tab mit mehreren Einträgen)*
+![Events-Tab mit mehreren Einträgen](pics/Events%20tab%20with%20multiple%20entries.jpg)
 
 ### Event-Typen
 
@@ -220,7 +214,7 @@ Aktiv, wenn im Wochentag-Feld `*` (Datum) ausgewählt ist. Das Datum-Feld ersche
 
 Definiert die Startfarben der GI-LEDs (General Illumination).
 
-*(Screenshot: GI LEDs-Tab)*
+![GI LEDs-Tab](pics/GI%20LEDs%20tab.jpg)
 
 ### Felder je LED-Zeile
 
@@ -244,7 +238,7 @@ Farbwähler und RGB-Felder sind miteinander synchronisiert: Eine Änderung im Pi
 
 Konfiguriert die Attract-Mode-Beleuchtung (Lauflichter im Standby) in **5 Gruppen** (AT1–AT5).
 
-*(Screenshot: Attract Mode-Tab mit aufgeklappter Gruppe AT1)*
+![Attract Mode-Tab mit aufgeklappter Gruppe AT1](pics/Attract%20Mode%20tab%20with%20group%20AT1%20expanded.jpg)
 
 Jede Gruppe ist als **aufklappbares Accordion-Panel** dargestellt.
 
@@ -266,7 +260,7 @@ Jede Gruppe ist als **aufklappbares Accordion-Panel** dargestellt.
 
 Einstellungen für die Text-to-Speech-Funktion (verwendet den WIT.ai-Dienst).
 
-*(Screenshot: TTS Settings-Tab)*
+![TTS Settings-Tab](pics/TTS%20Settings%20tab.jpg)
 
 | Feld | Mögliche Werte | Standardwert |
 |------|---------------|-------------|

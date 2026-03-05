@@ -28,7 +28,7 @@ The **LISYclock Config Editor** is a tool for conveniently editing the `config.t
 - Simply open `index.html` in your browser and get started
 - Supports direct upload/download to the LISYclock hardware via HTTP
 
-*(Screenshot: Full view of the editor with an open configuration file)*
+![Full view of the editor with an open configuration file](pics/Full%20view%20of%20the%20editor%20with%20an%20open%20configuration%20file.jpg)
 
 ---
 
@@ -48,8 +48,6 @@ The **LISYclock Config Editor** is a tool for conveniently editing the `config.t
 
 > **Important:** For direct communication with the LISYclock (tab "Clock"), the file must be opened via `file://` – **not** via HTTPS. Background: browsers block HTTP requests (to the clock) from HTTPS pages for security reasons.
 
-*(Screenshot: index.html in the file explorer, opening in the browser)*
-
 ---
 
 ## 3. File Operations
@@ -65,15 +63,11 @@ The buttons in the **navigation bar** (top) control all file operations:
 
 The **current filename** is displayed in the center of the navigation bar. As long as no file has been opened, "(no file)" appears there.
 
-*(Screenshot: Navigation bar with filename)*
-
 ---
 
 ## 4. Tab: Clock
 
 This tab enables direct communication with the LISYclock hardware over the local network.
-
-*(Screenshot: Clock tab with green status indicator)*
 
 ### IP Address
 
@@ -125,7 +119,7 @@ If the editor is opened via an HTTPS URL, the browser blocks all HTTP requests t
 
 General settings for the LISYclock.
 
-*(Screenshot: General tab)*
+![General tab](pics/General%20tab.jpg)
 
 ### Display Brightness
 
@@ -163,7 +157,7 @@ Example (English): `Sun`, `Mon`, `Tue`, `Wed`, `Thu`, `Fri`, `Sat`
 
 Events define time-controlled actions of the LISYclock.
 
-*(Screenshot: Events tab with multiple entries)*
+![Events tab with multiple entries](pics/Events%20tab%20with%20multiple%20entries.jpg)
 
 ### Event Types
 
@@ -220,7 +214,7 @@ Active when `*` (date) is selected in the weekday field. The date field then app
 
 Defines the start colors of the GI LEDs (General Illumination).
 
-*(Screenshot: GI LEDs tab)*
+![GI LEDs tab](pics/GI%20LEDs%20tab.jpg)
 
 ### Fields per LED Row
 
@@ -244,7 +238,7 @@ The color picker and RGB fields are synchronized: a change in the picker updates
 
 Configures the Attract Mode lighting (running lights in standby) in **5 groups** (AT1–AT5).
 
-*(Screenshot: Attract Mode tab with group AT1 expanded)*
+![Attract Mode tab with group AT1 expanded](pics/Attract%20Mode%20tab%20with%20group%20AT1%20expanded.jpg)
 
 Each group is displayed as a **collapsible accordion panel**.
 
@@ -266,7 +260,7 @@ Each group is displayed as a **collapsible accordion panel**.
 
 Settings for the Text-to-Speech function (uses the WIT.ai service).
 
-*(Screenshot: TTS Settings tab)*
+![TTS Settings tab](pics/TTS%20Settings%20tab.jpg)
 
 | Field | Possible Values | Default |
 |-------|----------------|---------|

@@ -28,7 +28,7 @@ Il **LISYclock Config Editor** è uno strumento per modificare comodamente il fi
 - Basta aprire `index.html` nel browser e iniziare
 - Supporta il caricamento/scaricamento diretto sull'hardware LISYclock via HTTP
 
-*(Screenshot: Vista completa dell'editor con file di configurazione aperto)*
+![Vista completa dell'editor con file di configurazione aperto](pics/Full%20view%20of%20the%20editor%20with%20an%20open%20configuration%20file.jpg)
 
 ---
 
@@ -48,8 +48,6 @@ Il **LISYclock Config Editor** è uno strumento per modificare comodamente il fi
 
 > **Importante:** Per la comunicazione diretta con il LISYclock (scheda "Clock"), il file deve essere aperto tramite `file://` – **non** tramite HTTPS. Motivo: i browser bloccano le richieste HTTP (verso l'orologio) dalle pagine HTTPS per ragioni di sicurezza.
 
-*(Screenshot: index.html in Esplora file, apertura nel browser)*
-
 ---
 
 ## 3. Operazioni sui file
@@ -65,15 +63,11 @@ I pulsanti nella **barra di navigazione** (in alto) controllano tutte le operazi
 
 Il **nome del file corrente** viene visualizzato al centro della barra di navigazione. Finché non è aperto alcun file, appare "(nessun file)".
 
-*(Screenshot: Barra di navigazione con nome file)*
-
 ---
 
 ## 4. Scheda: Clock
 
 Questa scheda consente la comunicazione diretta con l'hardware LISYclock sulla rete locale.
-
-*(Screenshot: Scheda Clock con indicatore di stato verde)*
 
 ### Indirizzo IP
 
@@ -125,7 +119,7 @@ Se l'editor viene aperto tramite un URL HTTPS, il browser blocca tutte le richie
 
 Impostazioni generali del LISYclock.
 
-*(Screenshot: Scheda General)*
+![Scheda General](pics/General%20tab.jpg)
 
 ### Luminosità del display
 
@@ -163,7 +157,7 @@ Esempio (Italiano): `Dom`, `Lun`, `Mar`, `Mer`, `Gio`, `Ven`, `Sab`
 
 Gli eventi definiscono le azioni temporizzate del LISYclock.
 
-*(Screenshot: Scheda Events con più voci)*
+![Scheda Events con più voci](pics/Events%20tab%20with%20multiple%20entries.jpg)
 
 ### Tipi di evento
 
@@ -220,7 +214,7 @@ Attiva quando nel campo giorno della settimana è selezionato `*` (data). Il cam
 
 Definisce i colori iniziali dei LED GI (Illuminazione Generale).
 
-*(Screenshot: Scheda GI LEDs)*
+![Scheda GI LEDs](pics/GI%20LEDs%20tab.jpg)
 
 ### Campi per ogni riga LED
 
@@ -244,7 +238,7 @@ Il selettore colore e i campi RGB sono sincronizzati: una modifica nel selettore
 
 Configura l'illuminazione dell'Attract Mode (luci animate in standby) in **5 gruppi** (AT1–AT5).
 
-*(Screenshot: Scheda Attract Mode con gruppo AT1 espanso)*
+![Scheda Attract Mode con gruppo AT1 espanso](pics/Attract%20Mode%20tab%20with%20group%20AT1%20expanded.jpg)
 
 Ogni gruppo è visualizzato come **pannello accordion richiudibile**.
 
@@ -266,7 +260,7 @@ Ogni gruppo è visualizzato come **pannello accordion richiudibile**.
 
 Impostazioni per la funzione Text-to-Speech (utilizza il servizio WIT.ai).
 
-*(Screenshot: Scheda TTS Settings)*
+![Scheda TTS Settings](pics/TTS%20Settings%20tab.jpg)
 
 | Campo | Valori possibili | Predefinito |
 |-------|-----------------|-------------|
