@@ -84,7 +84,7 @@
 
 <!-- Navbar / Toolbar -->
 <nav class="navbar navbar-dark bg-dark px-3 py-2">
-  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.04</small></span>
+  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.05</small></span>
   <span id="currentFileName" class="text-secondary text-truncate mx-auto"
         style="max-width:40%; font-size:0.85rem;" title="">&#8212; no file open &#8212;</span>
   <div class="d-flex gap-2 flex-wrap">
@@ -316,6 +316,13 @@
 
     <!-- ======================================================= CLOCK TAB -->
     <div class="tab-pane fade show active" id="tabClock" role="tabpanel">
+      <div id="mixedContentWarning" class="alert alert-warning d-none" role="alert">
+        <strong>Mixed Content &mdash; Clock connection not available.</strong>
+        This page is served over <strong>HTTPS</strong>, but the clock only speaks <strong>HTTP</strong>.
+        Browsers block such requests for security reasons.<br>
+        <strong>Fix:</strong> Download <a href="index.html" class="alert-link" download>index.html</a>
+        and open it directly from your local disk &mdash; the clock connection will work fine that way.
+      </div>
       <h5 class="mb-3">Clock Connection</h5>
       <div class="row g-3">
 
@@ -580,6 +587,16 @@ function generateConfig() {
   L.push('#EVENT_DISPLAY=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"on | off"');
   L.push('#EVENT_GI_LEDS=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"on | off"');
   L.push('#EVENT_ATTRACT_LEDS=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"on | off"');
+  L.push('#EVENT_TIME=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,<retries 1..10>');
+  L.push('#');
+  L.push('#Event description:');
+  L.push('#EVENT_TTS: The text is output as speech.');
+  L.push('#EVENT_MP3: The mp3 file (on SD) will be played');
+  L.push('#EVENT_BATCH: The Batch (on SD) will be executed');
+  L.push('#EVENT_DISPLAY: all displays on or off');
+  L.push('#EVENT_GI_LEDS: all GI LEDs on or off');
+  L.push('#EVENT_ATTRACT_LEDS: all attract mode LEDs on or off');
+  L.push('#EVENT_TIME: Sync time to NTP server on internet');
   L.push('#');
   L.push('');
 
@@ -1151,6 +1168,16 @@ function renderAttractGroup(groupIndex) {
 
 const EVENT_TYPES = ['TTS', 'MP3', 'BATCH', 'DISPLAY', 'TIME', 'GI_LEDS', 'ATTRACT_LEDS'];
 
+const EVENT_LABELS = {
+  TTS:          'TTS (text as speech)',
+  MP3:          'MP3 (play mp3 on SD)',
+  BATCH:        'BATCH (execute batch on SD)',
+  DISPLAY:      'DISPLAY (displays on/off)',
+  TIME:         'TIME (sync NTP server)',
+  GI_LEDS:      'GI_LEDS (GI LEDs on/off)',
+  ATTRACT_LEDS: 'ATTRACT_LEDS (attract LEDs on/off)'
+};
+
 const EVENT_PH = {
   TTS:          'text to speak',
   MP3:          'mp3 filename on SD card',
@@ -1177,12 +1204,34 @@ function composeEventTime(hh, mm, wd, dd, mo, yyyy) {
   return `${hh}:${mm}-${dd}.${mo}.${yyyy}`;
 }
 
+function createValueWidget(evObj) {
+  const type = evObj.type;
+  if (type === 'DISPLAY' || type === 'GI_LEDS' || type === 'ATTRACT_LEDS') {
+    const val = (evObj.value === 'off') ? 'off' : 'on';
+    return `<select class="form-select form-select-sm" style="width:90px" data-f="value">
+      <option value="on"${val === 'on' ? ' selected' : ''}>on</option>
+      <option value="off"${val === 'off' ? ' selected' : ''}>off</option>
+    </select>`;
+  }
+  if (type === 'TIME') {
+    const cur = (parseInt(evObj.value) >= 1 && parseInt(evObj.value) <= 10)
+      ? String(evObj.value) : '5';
+    let opts = '';
+    for (let i = 1; i <= 10; i++)
+      opts += `<option value="${i}"${String(i) === cur ? ' selected' : ''}>${i} retries</option>`;
+    return `<select class="form-select form-select-sm" style="width:120px" data-f="value">${opts}</select>`;
+  }
+  // TTS, MP3, BATCH – free text field
+  return `<input type="text" class="form-control form-control-sm" style="min-width:140px;flex:2"
+    placeholder="${EVENT_PH[type] || ''}" value="${escHtml(evObj.value)}" data-f="value">`;
+}
+
 function createEventRow(evObj, index) {
   const div = document.createElement('div');
   div.className = 'event-row';
 
   const typeOpts = EVENT_TYPES.map(t =>
-    `<option value="${t}"${evObj.type === t ? ' selected' : ''}>${t}</option>`
+    `<option value="${t}"${evObj.type === t ? ' selected' : ''}>${EVENT_LABELS[t]}</option>`
   ).join('');
 
   const pt = parseEventTime(evObj.time);
@@ -1208,7 +1257,7 @@ function createEventRow(evObj, index) {
     yyyyOpts += `<option value="${y}"${String(y) == pt.yyyy ? ' selected' : ''}>${y}</option>`;
 
   div.innerHTML = `
-    <select class="form-select form-select-sm" style="width:130px" data-f="type">
+    <select class="form-select form-select-sm" style="width:220px" data-f="type">
       ${typeOpts}
     </select>
     <div class="d-flex gap-1 align-items-center flex-wrap">
@@ -1219,8 +1268,7 @@ function createEventRow(evObj, index) {
       <select class="form-select form-select-sm" style="width:72px" data-f="t-mo" title="Month"${dateDisabled}>${numOpts(1, 12, pt.mo)}</select>
       <select class="form-select form-select-sm" style="width:90px" data-f="t-yyyy" title="Year"${dateDisabled}>${yyyyOpts}</select>
     </div>
-    <input type="text" class="form-control form-control-sm" style="min-width:140px;flex:2"
-      placeholder="${EVENT_PH[evObj.type] || ''}" value="${escHtml(evObj.value)}" data-f="value">
+    <div data-role="val-wrap" style="display:contents">${createValueWidget(evObj)}</div>
     <button class="btn btn-outline-danger btn-sm" title="Remove">&#10005;</button>`;
 
   const typeEl  = div.querySelector('[data-f="type"]');
@@ -1230,8 +1278,15 @@ function createEventRow(evObj, index) {
   const selDD   = div.querySelector('[data-f="t-dd"]');
   const selMo   = div.querySelector('[data-f="t-mo"]');
   const selYYYY = div.querySelector('[data-f="t-yyyy"]');
-  const valEl   = div.querySelector('[data-f="value"]');
+  const valWrap = div.querySelector('[data-role="val-wrap"]');
   const remBtn  = div.querySelector('button');
+
+  function wireValueListener() {
+    const el = valWrap.querySelector('[data-f="value"]');
+    el.addEventListener(el.tagName === 'INPUT' ? 'input' : 'change',
+      () => { evObj.value = el.value; });
+  }
+  wireValueListener();
 
   function updateTime() {
     evObj.time = composeEventTime(selHH.value, selMM.value, selWD.value,
@@ -1248,10 +1303,15 @@ function createEventRow(evObj, index) {
   [selHH, selMM, selDD, selMo, selYYYY].forEach(s => s.addEventListener('change', updateTime));
 
   typeEl.addEventListener('change', () => {
-    evObj.type        = typeEl.value;
-    valEl.placeholder = EVENT_PH[typeEl.value] || '';
+    evObj.type = typeEl.value;
+    if (['DISPLAY', 'GI_LEDS', 'ATTRACT_LEDS'].includes(typeEl.value)) {
+      if (evObj.value !== 'off') evObj.value = 'on';
+    } else if (typeEl.value === 'TIME') {
+      if (!(parseInt(evObj.value) >= 1 && parseInt(evObj.value) <= 10)) evObj.value = '5';
+    }
+    valWrap.innerHTML = createValueWidget(evObj);
+    wireValueListener();
   });
-  valEl.addEventListener('input', () => { evObj.value = valEl.value; });
   remBtn.addEventListener('click', () => {
     state.events.splice(index, 1);
     renderEvents();
@@ -1269,7 +1329,7 @@ function renderEvents() {
   hdr.className = 'd-flex align-items-center gap-1 px-2 mb-1';
   hdr.style.cssText = 'font-size:.75rem;color:#6c757d;font-weight:600';
   hdr.innerHTML = `
-    <span style="width:130px">Event</span>
+    <span style="width:220px">Event</span>
     <div class="d-flex gap-1" style="flex:none">
       <span style="width:72px">hour</span>
       <span style="width:72px">minute</span>
@@ -1534,6 +1594,10 @@ function renderClock() {
   // Restore saved IP from localStorage
   const savedIp = localStorage.getItem('lisyclock_ip');
   if (savedIp) document.getElementById('clock_ip').value = savedIp;
+  // Warn if served over HTTPS — browser will block HTTP requests to the clock
+  if (location.protocol === 'https:') {
+    document.getElementById('mixedContentWarning').classList.remove('d-none');
+  }
 }
 
 // Clock input listeners — persist IP to localStorage

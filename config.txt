@@ -31,6 +31,16 @@ TTS_SFXEnv="none"
 #EVENT_DISPLAY=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"on | off"
 #EVENT_GI_LEDS=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"on | off"
 #EVENT_ATTRACT_LEDS=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"on | off"
+#EVENT_TIME=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,<retries 1..10>
+#
+#Event description:
+#EVENT_TTS: The text is output as speech.
+#EVENT_MP3: The mp3 file (on SD) will be played
+#EVENT_BATCH: The Batch (on SD) will be executed
+#EVENT_DISPLAY: all displays on or off
+#EVENT_GI_LEDS: all GI LEDs on or off
+#EVENT_ATTRACT_LEDS: all attract mode LEDs on or off
+#EVENT_TIME: Sync time to NTP server on internet
 #
 #  examples
 #
