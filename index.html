@@ -84,7 +84,7 @@
 
 <!-- Navbar / Toolbar -->
 <nav class="navbar navbar-dark bg-dark px-3 py-2">
-  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.05</small></span>
+  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.06</small></span>
   <span id="currentFileName" class="text-secondary text-truncate mx-auto"
         style="max-width:40%; font-size:0.85rem;" title="">&#8212; no file open &#8212;</span>
   <div class="d-flex gap-2 flex-wrap">
@@ -1532,15 +1532,17 @@ async function clockRefreshFiles() {
     }
     const table = document.createElement('table');
     table.className = 'table table-sm table-bordered';
-    table.innerHTML = '<thead><tr><th>Name</th><th>Size</th><th></th></tr></thead>';
+    table.innerHTML = '<thead><tr><th>Name</th><th>Size</th><th>Date</th><th></th></tr></thead>';
     const tbody = document.createElement('tbody');
     for (const f of files) {
+      const dateStr = (f.mtime > 0) ? new Date(f.mtime * 1000).toLocaleString() : '—';
       const tr = document.createElement('tr');
       tr.innerHTML = `<td class="font-monospace">${escHtml(f.name)}</td>` +
                      `<td class="text-end">${f.size}</td>` +
+                     `<td class="text-nowrap small">${escHtml(dateStr)}</td>` +
                      `<td class="d-flex gap-1">` +
-                       `<button class="btn btn-outline-secondary btn-sm" onclick="clockDownloadSdFile(${JSON.stringify(f.name)})">&#x2193;</button>` +
-                       `<button class="btn btn-outline-secondary btn-sm" onclick="clockRenameFile(${JSON.stringify(f.name)})">Rename</button>` +
+                       `<button class="btn btn-outline-secondary btn-sm" onclick="clockDownloadSdFile(${escHtml(JSON.stringify(f.name))})">&#x2193;</button>` +
+                       `<button class="btn btn-outline-secondary btn-sm" onclick="clockRenameFile(${escHtml(JSON.stringify(f.name))})">Rename</button>` +
                      `</td>`;
       tbody.appendChild(tr);
     }
@@ -1564,8 +1566,10 @@ async function clockDownloadSdFile(name) {
     const a = document.createElement('a');
     a.href = url;
     a.download = name;
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   } catch (err) {
     showToast('Download failed: ' + err.message, 'danger');
   }

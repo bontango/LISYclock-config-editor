@@ -107,6 +107,7 @@ Un clic su **Riavvia** riavvia il LISYclock. Una finestra di conferma previene r
 
 - **Carica file:** Trasferire qualsiasi file (ad es. MP3, batch) sulla scheda SD dell'orologio
 - **Elenco file:** Usare **Aggiorna** per caricare l'elenco file corrente dalla scheda SD
+  - L'elenco mostra nome, dimensione e **data** di modifica di ogni file
   - I singoli file possono essere **scaricati** o **rinominati**
 
 ### Avviso HTTPS
@@ -329,4 +330,4 @@ EVENT_VALUE="Guten Morgen!"
 
 ---
 
-*Creato per LISYclock Config Editor v1.05*
+*Creato per LISYclock Config Editor v1.06*

@@ -107,6 +107,7 @@ Clicking **Reboot** restarts the LISYclock. A confirmation dialog prevents accid
 
 - **Upload file:** Transfer any file (e.g. MP3, batch) to the clock's SD card
 - **File list:** Use **Refresh** to load the current file list from the SD card
+  - The list shows name, size, and modification **date** for each file
   - Individual files can be **downloaded** or **renamed**
 
 ### HTTPS Warning
@@ -329,4 +330,4 @@ EVENT_VALUE="Guten Morgen!"
 
 ---
 
-*Created for LISYclock Config Editor v1.05*
+*Created for LISYclock Config Editor v1.06*

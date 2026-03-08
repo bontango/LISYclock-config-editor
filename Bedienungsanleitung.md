@@ -107,6 +107,7 @@ Ein Klick auf **Reboot** startet die LISYclock neu. Ein Bestätigungsdialog verh
 
 - **Datei hochladen:** Beliebige Datei (z. B. MP3, Batch) auf die SD-Karte der Uhr übertragen
 - **Dateiliste:** Mit **Aktualisieren** die aktuelle Dateiliste von der SD-Karte laden
+  - Die Liste zeigt Name, Größe und Änderungs**datum** jeder Datei
   - Einzelne Dateien können **heruntergeladen** oder **umbenannt** werden
 
 ### HTTPS-Warnung
@@ -329,4 +330,4 @@ EVENT_VALUE="Guten Morgen!"
 
 ---
 
-*Erstellt für LISYclock Config Editor v1.05*
+*Erstellt für LISYclock Config Editor v1.06*
