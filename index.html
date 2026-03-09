@@ -84,7 +84,7 @@
 
 <!-- Navbar / Toolbar -->
 <nav class="navbar navbar-dark bg-dark px-3 py-2">
-  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.06</small></span>
+  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.07</small></span>
   <span id="currentFileName" class="text-secondary text-truncate mx-auto"
         style="max-width:40%; font-size:0.85rem;" title="">&#8212; no file open &#8212;</span>
   <div class="d-flex gap-2 flex-wrap">
@@ -363,6 +363,13 @@
             <input type="file" accept=".bin" class="form-control form-control-sm" id="clockUpdateInput" style="max-width:350px">
             <button class="btn btn-warning btn-sm" id="btnClockUpdate">Update &amp; Reboot</button>
             <span class="small text-muted" id="clockUpdateStatus"></span>
+          </div>
+          <div class="d-flex gap-2 flex-wrap align-items-center mt-1">
+            <span class="small text-muted">Or select from lisy.dev:</span>
+            <button class="btn btn-outline-secondary btn-sm" id="btnFetchServerFw">Fetch versions</button>
+            <select class="form-select form-select-sm d-none" id="serverFwSelect" style="max-width:300px">
+              <option value="">— select —</option>
+            </select>
           </div>
         </div>
 
@@ -1364,6 +1371,7 @@ function escHtml(s) {
 // =============================================================================
 
 const EXPECTED_API_VERSION = 2; // Must match HTTP_API_VERSION in LISYclock/main/httpserver.h and ESP32_source/API.md
+let clockMajorVersion = null; // set to 1 or 2 after successful connection
 
 function clockBaseUrl() {
   const ip = document.getElementById('clock_ip').value.trim();
@@ -1400,6 +1408,10 @@ async function clockTestConnection() {
     }
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
+    if (data.version) {
+      const mv = data.version.trim().match(/^v?(\d+)/i);
+      if (mv) clockMajorVersion = parseInt(mv[1]);
+    }
     let statusText = 'Connected' + (data.version ? ' (' + data.version.trim() + ')' : '');
     if (data.api_version !== undefined && data.api_version !== EXPECTED_API_VERSION) {
       statusText += ' — API version mismatch (firmware: ' + data.api_version + ', editor expects: ' + EXPECTED_API_VERSION + ')';
@@ -1489,7 +1501,76 @@ async function clockReboot() {
   }
 }
 
+async function clockFetchServerFirmware() {
+  if (!clockMajorVersion) {
+    showToast('Connect to the clock first to determine firmware version.', 'warning');
+    return;
+  }
+  const BASE = 'https://lisy.dev/swrep/misc/LISYclock/bin/';
+  const btn = document.getElementById('btnFetchServerFw');
+  btn.disabled = true;
+  btn.textContent = 'Fetching\u2026';
+  try {
+    const resp = await fetch(BASE);
+    const html = await resp.text();
+    const re = /href="(LISYclock_v(\d+)\.\d+\.bin)"/gi;
+    const files = [];
+    let m;
+    while ((m = re.exec(html)) !== null) {
+      if (parseInt(m[2]) === clockMajorVersion) files.push(m[1]);
+    }
+    files.sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+    const sel = document.getElementById('serverFwSelect');
+    sel.innerHTML = '<option value="">— select —</option>';
+    files.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = BASE + f;
+      opt.textContent = f;
+      sel.appendChild(opt);
+    });
+    if (files.length === 0) {
+      showToast('No v' + clockMajorVersion + ' firmware files found on server.', 'warning');
+    } else {
+      sel.classList.remove('d-none');
+    }
+  } catch (err) {
+    showToast('Could not fetch server firmware list: ' + err.message, 'danger');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Fetch versions';
+  }
+}
+
 async function clockUpdateFirmware() {
+  const serverSel = document.getElementById('serverFwSelect');
+  const serverUrl = serverSel ? serverSel.value : '';
+  if (serverUrl) {
+    const ip = document.getElementById('clock_ip').value.trim();
+    if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
+    const statusEl = document.getElementById('clockUpdateStatus');
+    statusEl.textContent = 'Downloading firmware\u2026';
+    let uploadSent = false;
+    try {
+      const dlResp = await fetch(serverUrl);
+      if (!dlResp.ok) throw new Error('Download failed: HTTP ' + dlResp.status);
+      const body = await dlResp.arrayBuffer();
+      statusEl.textContent = 'Uploading\u2026';
+      uploadSent = true;
+      const resp = await fetch(clockBaseUrl() + '/update', { method: 'POST', body });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      statusEl.textContent = 'Done — clock is rebooting.';
+      showToast('Firmware uploaded. Clock is rebooting\u2026', 'success');
+    } catch (err) {
+      if (uploadSent && err instanceof TypeError) {
+        statusEl.textContent = 'Done — clock is rebooting.';
+        showToast('Firmware uploaded. Clock is rebooting\u2026', 'success');
+      } else {
+        statusEl.textContent = 'Failed';
+        showToast('Firmware update failed: ' + err.message, 'danger');
+      }
+    }
+    return;
+  }
   const ip = document.getElementById('clock_ip').value.trim();
   if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
   const fileInput = document.getElementById('clockUpdateInput');
@@ -1501,8 +1582,10 @@ async function clockUpdateFirmware() {
   }
   const statusEl = document.getElementById('clockUpdateStatus');
   statusEl.textContent = 'Uploading\u2026';
+  let uploadSent = false;
   try {
     const body = await file.arrayBuffer();
+    uploadSent = true;
     const resp = await fetch(clockBaseUrl() + '/update', {
       method: 'POST',
       body: body
@@ -1511,8 +1594,13 @@ async function clockUpdateFirmware() {
     statusEl.textContent = 'Done — clock is rebooting.';
     showToast('Firmware uploaded. Clock is rebooting\u2026', 'success');
   } catch (err) {
-    statusEl.textContent = 'Failed';
-    showToast('Firmware update failed: ' + err.message, 'danger');
+    if (uploadSent && err instanceof TypeError) {
+      statusEl.textContent = 'Done — clock is rebooting.';
+      showToast('Firmware uploaded. Clock is rebooting\u2026', 'success');
+    } else {
+      statusEl.textContent = 'Failed';
+      showToast('Firmware update failed: ' + err.message, 'danger');
+    }
   }
 }
 
@@ -1616,6 +1704,7 @@ document.getElementById('btnClockDownloadConfig').addEventListener('click', cloc
 document.getElementById('btnClockUploadFile').addEventListener('click', clockUploadFile);
 document.getElementById('btnClockReboot').addEventListener('click', clockReboot);
 document.getElementById('btnClockUpdate').addEventListener('click', clockUpdateFirmware);
+document.getElementById('btnFetchServerFw').addEventListener('click', clockFetchServerFirmware);
 document.getElementById('btnClockRefreshFiles').addEventListener('click', clockRefreshFiles);
 
 // =============================================================================

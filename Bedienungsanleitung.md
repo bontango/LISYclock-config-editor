@@ -1,6 +1,6 @@
 # LISYclock Config Editor – Bedienungsanleitung
 
-**Version 1.05** | Sprache: Deutsch
+**Version 1.07** | Sprache: Deutsch
 
 ---
 
@@ -22,7 +22,7 @@
 
 ## 1. Überblick
 
-Der **LISYclock Config Editor** ist ein Werkzeug zum komfortablen Bearbeiten der `config.txt`-Konfigurationsdatei des **LISYclock 2.35**.
+Der **LISYclock Config Editor** ist ein Werkzeug zum komfortablen Bearbeiten der `config.txt`-Konfigurationsdatei des **LISYclock**.
 
 - Standalone-Anwendung: eine einzige `index.html`-Datei, kein Server, kein Build-Schritt
 - Einfach `index.html` im Browser öffnen und loslegen
@@ -98,10 +98,18 @@ Ein Klick auf **Reboot** startet die LISYclock neu. Ein Bestätigungsdialog verh
 
 ### Firmware-Update
 
+**Option A – Lokale Datei:**
 1. `.bin`-Datei mit dem Datei-Auswahl-Button auswählen
 2. **Upload & Reboot** klicken – die Datei wird übertragen und die Uhr startet automatisch neu
 
+**Option B – Vom lisy.dev-Server:**
+1. Zuerst mit der Uhr verbinden (damit der Editor weiß, ob v1- oder v2-Firmware läuft)
+2. **Fetch versions** klicken – ein Dropdown erscheint mit allen passenden Firmware-Dateien von lisy.dev
+3. Die gewünschte Version aus dem Dropdown auswählen
+4. **Upload & Reboot** klicken – die Datei wird von lisy.dev heruntergeladen und zur Uhr übertragen
+
 > Während des Uploads erscheint eine Fortschrittsanzeige. Den Browser-Tab nicht schließen.
+> Wenn eine Server-Version ausgewählt ist, hat das Dropdown Vorrang vor einer lokal gewählten Datei.
 
 ### Dateiverwaltung auf der SD-Karte
 
@@ -330,4 +338,4 @@ EVENT_VALUE="Guten Morgen!"
 
 ---
 
-*Erstellt für LISYclock Config Editor v1.06*
+*Erstellt für LISYclock Config Editor v1.07*

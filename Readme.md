@@ -1,7 +1,7 @@
 # LISYclock Config Editor
 
 A standalone browser application for creating and editing
-[LISYclock 2.35](https://github.com/lisy) `config.txt` files.
+[LISYclock](https://github.com/lisy) `config.txt` files.
 No installation, no server — just open `index.html` in Chrome or Edge.
 
 ## Requirements
