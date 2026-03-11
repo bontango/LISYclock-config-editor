@@ -1,6 +1,6 @@
 # LISYclock Config Editor – Manuale d'uso
 
-**Versione 1.07** | Lingua: Italiano
+**Versione 1.08** | Lingua: Italiano
 
 ---
 
@@ -176,7 +176,8 @@ Gli eventi definiscono le azioni temporizzate del LISYclock.
 | **MP3** | Riprodurre un file MP3 dalla scheda SD | Nome file (ad es. `alarm.mp3`) |
 | **BATCH** | Eseguire un file batch dalla scheda SD | Nome file (ad es. `script.bat`) |
 | **DISPLAY** | Accendere o spegnere tutti i display | Dropdown: `on` / `off` |
-| **TIME** | Sincronizzare l'orario tramite NTP | Dropdown: 1–10 tentativi |
+| **SYNC_TIME** | Sincronizzare l'orario tramite NTP | Dropdown: 1–10 tentativi |
+| **SAY_TIME** | Dire l'ora corrente tramite TTS | Dropdown: `german` / `english` / `italian` |
 | **GI_LEDS** | Accendere o spegnere tutti i LED GI | Dropdown: `on` / `off` |
 | **ATTRACT_LEDS** | Accendere o spegnere tutti i LED Attract | Dropdown: `on` / `off` |
 
@@ -305,8 +306,9 @@ KEY=value
 | Blocco FTP | Nessuno spazio dopo `#`: `#FTP_USER=lisy` |
 | Fuso orario | Spazio dopo `#`: `# TIMEZONE="CET-1CEST,…"` |
 | Stringhe giorni | Esattamente 6 caratteri, completati con spazi: `Lun   ` |
-| `EVENT_TIME` | Valore **senza** virgolette: `EVENT_TIME=730` |
-| Tutti gli altri `EVENT_*` | Valore **con** virgolette: `EVENT_TYPE="TTS"` |
+| `EVENT_SYNC_TIME` | Valore **senza** virgolette: `EVENT_SYNC_TIME=2:0:*,10` |
+| `EVENT_SAY_TIME` | Valore **con** virgolette: `EVENT_SAY_TIME=14:12:*,"italian"` |
+| Tutti gli altri `EVENT_*` | Valore **con** virgolette: `EVENT_TTS=8:0:*,"Buongiorno!"` |
 
 ### Estratto di esempio
 
@@ -315,11 +317,9 @@ DISP_BRIGHT=5
 #FTP_USER=lisy
 #FTP_PWD=lisy
 # TIMEZONE="CET-1CEST,M3.5.0,M10.5.0/3"
-DAYS_SUN=So
-DAYS_MON=Mo
-EVENT_TIME=730
-EVENT_TYPE="TTS"
-EVENT_VALUE="Guten Morgen!"
+EVENT_SYNC_TIME=2:0:*,10
+EVENT_SAY_TIME=14:12:*,"italian"
+EVENT_TTS=8:0:*,"Buongiorno!"
 ```
 
 ---
@@ -332,10 +332,10 @@ EVENT_VALUE="Guten Morgen!"
 
 - **FTP come alternativa:** Il `config.txt` completato può anche essere trasferito sulla scheda SD dell'orologio tramite FTP (se il server FTP è abilitato nella configurazione).
 
-- **Chiavi sconosciute:** L'editor ignora le chiavi sconosciute durante il caricamento – non vengono mantenute al salvataggio. Se si hanno estensioni personalizzate nel `config.txt`, eseguirne prima un backup separato.
+- **Chiavi sconosciute:** Se l'editor incontra chiavi sconosciute durante il caricamento, le ignora e mostra un banner di avviso con le righe interessate. Non vengono mantenute al salvataggio. Se si hanno estensioni personalizzate nel `config.txt`, eseguirne prima un backup separato.
 
 - **Nessuna funzione annulla:** L'editor non dispone di una funzione annulla. In caso di modifiche accidentali, riaprire il file (senza salvare prima) ripristinerà lo stato precedente.
 
 ---
 
-*Creato per LISYclock Config Editor v1.07*
+*Creato per LISYclock Config Editor v1.08*

@@ -1,6 +1,6 @@
 # LISYclock Config Editor – Bedienungsanleitung
 
-**Version 1.07** | Sprache: Deutsch
+**Version 1.08** | Sprache: Deutsch
 
 ---
 
@@ -176,7 +176,8 @@ Events definieren zeitgesteuerte Aktionen der LISYclock.
 | **MP3** | MP3-Datei von der SD-Karte abspielen | Dateiname (z. B. `alarm.mp3`) |
 | **BATCH** | Batch-Datei von der SD-Karte ausführen | Dateiname (z. B. `script.bat`) |
 | **DISPLAY** | Alle Displays ein- oder ausschalten | Dropdown: `on` / `off` |
-| **TIME** | Uhrzeit per NTP synchronisieren | Dropdown: 1–10 Wiederholungsversuche |
+| **SYNC_TIME** | Uhrzeit per NTP synchronisieren | Dropdown: 1–10 Wiederholungsversuche |
+| **SAY_TIME** | Aktuelle Uhrzeit per TTS ansagen | Dropdown: `german` / `english` / `italian` |
 | **GI_LEDS** | Alle GI-LEDs ein- oder ausschalten | Dropdown: `on` / `off` |
 | **ATTRACT_LEDS** | Alle Attract-LEDs ein- oder ausschalten | Dropdown: `on` / `off` |
 
@@ -305,8 +306,9 @@ KEY=value
 | FTP-Block | Kein Leerzeichen nach `#`: `#FTP_USER=lisy` |
 | Zeitzone | Leerzeichen nach `#`: `# TIMEZONE="CET-1CEST,…"` |
 | Wochentags-Strings | Genau 6 Zeichen, mit Leerzeichen aufgefüllt: `Mo    ` |
-| `EVENT_TIME` | Wert **ohne** Anführungszeichen: `EVENT_TIME=730` |
-| Alle anderen `EVENT_*` | Wert **mit** Anführungszeichen: `EVENT_TYPE="TTS"` |
+| `EVENT_SYNC_TIME` | Wert **ohne** Anführungszeichen: `EVENT_SYNC_TIME=2:0:*,10` |
+| `EVENT_SAY_TIME` | Wert **mit** Anführungszeichen: `EVENT_SAY_TIME=14:12:*,"german"` |
+| Alle anderen `EVENT_*` | Wert **mit** Anführungszeichen: `EVENT_TTS=8:0:*,"Guten Morgen!"` |
 
 ### Beispiel-Ausschnitt
 
@@ -315,11 +317,9 @@ DISP_BRIGHT=5
 #FTP_USER=lisy
 #FTP_PWD=lisy
 # TIMEZONE="CET-1CEST,M3.5.0,M10.5.0/3"
-DAYS_SUN=So
-DAYS_MON=Mo
-EVENT_TIME=730
-EVENT_TYPE="TTS"
-EVENT_VALUE="Guten Morgen!"
+EVENT_SYNC_TIME=2:0:*,10
+EVENT_SAY_TIME=14:12:*,"german"
+EVENT_TTS=8:0:*,"Guten Morgen!"
 ```
 
 ---
@@ -332,10 +332,10 @@ EVENT_VALUE="Guten Morgen!"
 
 - **FTP als Alternative:** Die fertige `config.txt` kann auch per FTP auf die SD-Karte der Uhr übertragen werden (wenn der FTP-Server in der Konfiguration aktiviert ist).
 
-- **Unbekannte Schlüssel:** Der Editor ignoriert unbekannte Schlüssel beim Laden – sie werden beim Speichern nicht übernommen. Falls du benutzerdefinierte Erweiterungen in der `config.txt` hast, sichere diese vorher separat.
+- **Unbekannte Schlüssel:** Wenn der Editor beim Laden unbekannte Schlüssel erkennt, ignoriert er sie und zeigt ein Warnbanner mit den betroffenen Zeilen an. Sie werden beim Speichern nicht übernommen. Falls du benutzerdefinierte Erweiterungen in der `config.txt` hast, sichere diese vorher separat.
 
 - **Keine Undo-Funktion:** Der Editor hat keine Rückgängig-Funktion. Bei versehentlichen Änderungen hilft es, die Datei neu zu öffnen (ohne vorher zu speichern).
 
 ---
 
-*Erstellt für LISYclock Config Editor v1.07*
+*Erstellt für LISYclock Config Editor v1.08*

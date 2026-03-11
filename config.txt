@@ -31,7 +31,8 @@ TTS_SFXEnv="none"
 #EVENT_DISPLAY=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"on | off"
 #EVENT_GI_LEDS=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"on | off"
 #EVENT_ATTRACT_LEDS=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"on | off"
-#EVENT_TIME=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,<retries 1..10>
+#EVENT_SYNC_TIME=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,<retries 1..10>
+#EVENT_SAY_TIME=<HH:MM-DD.MM.YYYY>|<HH:MM:W>,"german|english|italian"
 #
 #Event description:
 #EVENT_TTS: The text is output as speech.
@@ -40,7 +41,8 @@ TTS_SFXEnv="none"
 #EVENT_DISPLAY: all displays on or off
 #EVENT_GI_LEDS: all GI LEDs on or off
 #EVENT_ATTRACT_LEDS: all attract mode LEDs on or off
-#EVENT_TIME: Sync time to NTP server on internet
+#EVENT_SYNC_TIME: Sync time to NTP server on internet
+#EVENT_SAY_TIME: Say current time via TTS (german/english/italian)
 #
 #  examples
 #
@@ -65,7 +67,10 @@ TTS_SFXEnv="none"
 #EVENT_BATCH=7:0:*,"good_morning_batch.txt"
 
 # sync time to ntp server each night at 2 a clock (10 retries)
-EVENT_TIME=2:0:*,10
+EVENT_SYNC_TIME=2:0:*,10
+
+# say current time via TTS ( german, english and italian possible )
+EVENT_SAY_TIME=14:12:*,"german"
 
 # display brightness 0...7
 DISP_BRIGHT=1

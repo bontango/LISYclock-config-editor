@@ -1,6 +1,6 @@
 # LISYclock Config Editor – User Manual
 
-**Version 1.07** | Language: English
+**Version 1.08** | Language: English
 
 ---
 
@@ -176,7 +176,8 @@ Events define time-controlled actions of the LISYclock.
 | **MP3** | Play an MP3 file from the SD card | Filename (e.g. `alarm.mp3`) |
 | **BATCH** | Execute a batch file from the SD card | Filename (e.g. `script.bat`) |
 | **DISPLAY** | Turn all displays on or off | Dropdown: `on` / `off` |
-| **TIME** | Synchronize time via NTP | Dropdown: 1–10 retry attempts |
+| **SYNC_TIME** | Synchronize time via NTP | Dropdown: 1–10 retry attempts |
+| **SAY_TIME** | Say the current time via TTS | Dropdown: `german` / `english` / `italian` |
 | **GI_LEDS** | Turn all GI LEDs on or off | Dropdown: `on` / `off` |
 | **ATTRACT_LEDS** | Turn all Attract LEDs on or off | Dropdown: `on` / `off` |
 
@@ -305,8 +306,9 @@ KEY=value
 | FTP block | No space after `#`: `#FTP_USER=lisy` |
 | Timezone | Space after `#`: `# TIMEZONE="CET-1CEST,…"` |
 | Weekday strings | Exactly 6 characters, padded with spaces: `Mon   ` |
-| `EVENT_TIME` | Value **without** quotes: `EVENT_TIME=730` |
-| All other `EVENT_*` | Value **with** quotes: `EVENT_TYPE="TTS"` |
+| `EVENT_SYNC_TIME` | Value **without** quotes: `EVENT_SYNC_TIME=2:0:*,10` |
+| `EVENT_SAY_TIME` | Value **with** quotes: `EVENT_SAY_TIME=14:12:*,"german"` |
+| All other `EVENT_*` | Value **with** quotes: `EVENT_TTS=8:0:*,"Good morning!"` |
 
 ### Example Excerpt
 
@@ -315,11 +317,9 @@ DISP_BRIGHT=5
 #FTP_USER=lisy
 #FTP_PWD=lisy
 # TIMEZONE="CET-1CEST,M3.5.0,M10.5.0/3"
-DAYS_SUN=So
-DAYS_MON=Mo
-EVENT_TIME=730
-EVENT_TYPE="TTS"
-EVENT_VALUE="Guten Morgen!"
+EVENT_SYNC_TIME=2:0:*,10
+EVENT_SAY_TIME=14:12:*,"german"
+EVENT_TTS=8:0:*,"Good morning!"
 ```
 
 ---
@@ -332,10 +332,10 @@ EVENT_VALUE="Guten Morgen!"
 
 - **FTP as alternative:** The finished `config.txt` can also be transferred to the clock's SD card via FTP (if the FTP server is enabled in the configuration).
 
-- **Unknown keys:** The editor ignores unknown keys when loading – they are not retained when saving. If you have custom extensions in `config.txt`, back them up separately beforehand.
+- **Unknown keys:** If the editor encounters unknown keys when loading, it ignores them and displays a warning banner listing the affected lines. They are not retained when saving. If you have custom extensions in `config.txt`, back them up separately beforehand.
 
 - **No undo function:** The editor has no undo function. If you make accidental changes, reopening the file (without saving first) will restore the previous state.
 
 ---
 
-*Created for LISYclock Config Editor v1.07*
+*Created for LISYclock Config Editor v1.08*
