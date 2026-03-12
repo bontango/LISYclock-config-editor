@@ -24,8 +24,8 @@
 
 Der **LISYclock Config Editor** ist ein Werkzeug zum komfortablen Bearbeiten der `config.txt`-Konfigurationsdatei des **LISYclock**.
 
-- Standalone-Anwendung: eine einzige `index.html`-Datei, kein Server, kein Build-Schritt
-- Einfach `index.html` im Browser öffnen und loslegen
+- Standalone-Anwendung: eine einzige `LISYclock_config_editor.html`-Datei, kein Server, kein Build-Schritt
+- Einfach `LISYclock_config_editor.html` im Browser öffnen und loslegen
 - Unterstützt direkten Upload/Download zur LISYclock-Hardware über HTTP
 
 ![Gesamtansicht des Editors mit geöffneter Konfigurationsdatei](pics/Full%20view%20of%20the%20editor%20with%20an%20open%20configuration%20file.jpg)
@@ -43,7 +43,7 @@ Der **LISYclock Config Editor** ist ein Werkzeug zum komfortablen Bearbeiten der
 
 ### Starten
 
-1. `index.html` aus dem Projektverzeichnis **lokal** im Browser öffnen (Doppelklick oder `Datei → Öffnen`)
+1. `LISYclock_config_editor.html` aus dem Projektverzeichnis **lokal** im Browser öffnen (Doppelklick oder `Datei → Öffnen`)
 2. Die Anwendung startet sofort mit einer leeren Standardkonfiguration
 
 > **Wichtig:** Für die direkte Kommunikation mit der LISYclock (Tab „Clock") muss die Datei über `file://` geöffnet werden – **nicht** über HTTPS. Hintergrund: Browser blockieren HTTP-Anfragen (zur Uhr) von HTTPS-Seiten aus Sicherheitsgründen.
@@ -120,7 +120,7 @@ Ein Klick auf **Reboot** startet die LISYclock neu. Ein Bestätigungsdialog verh
 
 ### HTTPS-Warnung
 
-Wenn der Editor über eine HTTPS-URL geöffnet wird, blockiert der Browser alle HTTP-Anfragen zur Uhr. Lösung: `index.html` **lokal** über `file://` öffnen.
+Wenn der Editor über eine HTTPS-URL geöffnet wird, blockiert der Browser alle HTTP-Anfragen zur Uhr. Lösung: `LISYclock_config_editor.html` **lokal** über `file://` öffnen.
 
 ---
 
@@ -328,7 +328,7 @@ EVENT_TTS=8:0:*,"Guten Morgen!"
 
 - **Chrome oder Edge verwenden:** Nur diese Browser unterstützen die File System Access API für native Öffnen/Speichern-Dialoge. In Firefox und Safari erscheinen stattdessen Standard-Datei-Picker bzw. Download-Links.
 
-- **Lokal öffnen für Clock-Zugriff:** Wenn die Kommunikation mit der LISYclock nicht funktioniert, prüfe ob `index.html` über `file://` (lokal) und nicht über `https://` geöffnet ist.
+- **Lokal öffnen für Clock-Zugriff:** Wenn die Kommunikation mit der LISYclock nicht funktioniert, prüfe ob `LISYclock_config_editor.html` über `file://` (lokal) und nicht über `https://` geöffnet ist.
 
 - **FTP als Alternative:** Die fertige `config.txt` kann auch per FTP auf die SD-Karte der Uhr übertragen werden (wenn der FTP-Server in der Konfiguration aktiviert ist).
 
@@ -338,4 +338,4 @@ EVENT_TTS=8:0:*,"Guten Morgen!"
 
 ---
 
-*Erstellt für LISYclock Config Editor v1.08*
+*Erstellt für LISYclock Config Editor v1.09*

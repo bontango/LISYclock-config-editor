@@ -4,19 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A standalone browser app (no server, no build step) for editing LISYclock 2.35 `config.txt` files. The entire application is a single self-contained `index.html` (~1095 lines). Open it directly in a browser — no local server needed.
+A standalone browser app (no server, no build step) for editing LISYclock 2.35 `config.txt` files. The entire application is a single self-contained `LISYclock_config_editor.html` (~1095 lines). Open it directly in a browser — no local server needed.
 
 ## Development
 
-No build tools, no package manager. Edit `index.html` directly and refresh the browser to test.
+No build tools, no package manager. Edit `LISYclock_config_editor.html` directly and refresh the browser to test.
 
-**Testing manually:** Open `index.html` in a Chromium-based browser (File System Access API requires Chrome/Edge for the Save/Open dialogs; other browsers fall back to `<input type=file>` / `<a download>`).
+**Testing manually:** Open `LISYclock_config_editor.html` in a Chromium-based browser (File System Access API requires Chrome/Edge for the Save/Open dialogs; other browsers fall back to `<input type=file>` / `<a download>`).
 
 A reference `config.txt` (with all supported keys) is in the project root.
 
 ## Architecture
 
-All logic lives in the `<script>` block of `index.html`, organized in clearly labeled sections:
+All logic lives in the `<script>` block of `LISYclock_config_editor.html`, organized in clearly labeled sections:
 
 | Section | Lines | Purpose |
 |---------|-------|---------|
@@ -59,7 +59,7 @@ Die Firmware befindet sich in `../LISYclock/` (relativ zu diesem Verzeichnis).
 
 **API-Vertrag:** [`../API.md`](../API.md) ist die Single Source of Truth für alle HTTP-Endpunkte.
 
-**Erwartete API-Version:** `1` (definiert als `EXPECTED_API_VERSION` in `index.html`)
+**Erwartete API-Version:** `1` (definiert als `EXPECTED_API_VERSION` in `LISYclock_config_editor.html`)
 
 **Regeln:**
 - Wenn du einen neuen Endpunkt im Editor nutzen möchtest, muss er zuerst in der Firmware (`../LISYclock/main/httpserver.c`) implementiert und in `../API.md` dokumentiert werden.

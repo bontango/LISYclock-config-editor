@@ -2,7 +2,7 @@
 
 A standalone browser application for creating and editing
 [LISYclock](https://github.com/lisy) `config.txt` files.
-No installation, no server — just open `index.html` in Chrome or Edge.
+No installation, no server — just open `LISYclock_config_editor.html` in Chrome or Edge.
 
 ## Requirements
 
@@ -12,7 +12,7 @@ No installation, no server — just open `index.html` in Chrome or Edge.
 
 ## Quick Start
 
-1. Open `index.html` in Chrome or Edge.
+1. Open `LISYclock_config_editor.html` in Chrome or Edge.
 2. Click **Open** to load an existing `config.txt`, or start with the defaults.
 3. Edit the settings across the five tabs.
 4. Click **Save** (overwrites the open file) or **Save As…** to write to a new location.
@@ -42,11 +42,11 @@ See `config.txt` for a fully annotated example with all supported keys.
 ## Project Structure
 
 ```
-index.html   — complete application (single self-contained file, ~1150 lines)
+LISYclock_config_editor.html   — complete application (single self-contained file, ~1150 lines)
 config.txt   — reference / sample configuration
 CLAUDE.md    — developer notes for Claude Code
 ```
 
 ## Development
 
-No build step. Edit `index.html` and refresh the browser to test.
+No build step. Edit `LISYclock_config_editor.html` and refresh the browser to test.

@@ -2,7 +2,7 @@
 # convert_and_deploy.ps1
 #
 # Wandelt die Dokumentations-Markdown-Dateien (DE/EN/IT) per Pandoc in HTML um
-# und laedt sie zusammen mit index.html per SFTP (WinSCP) auf den Server hoch.
+# und laedt sie zusammen mit LISYclock_config_editor.html per SFTP (WinSCP) auf den Server hoch.
 #
 # Voraussetzungen:
 #   - Pandoc installiert und im PATH (https://pandoc.org)
@@ -122,7 +122,7 @@ if ($SFTP_ENABLED) {
         "Bedienungsanleitung.html",
         "user_manual.html",
         "manuale_duso.html",
-        "index.html"
+        "LISYclock_config_editor.html"
     )
 
     $putCommands = ($uploadFiles | ForEach-Object {
@@ -130,15 +130,30 @@ if ($SFTP_ENABLED) {
         "put `"$localPath`" `"${SFTP_PATH}/$_`""
     }) -join "`n"
 
+    # pics-Ordner rekursiv hochladen (falls vorhanden)
+    $picsCmd = ""
+    if (Test-Path "pics" -PathType Container) {
+        $picsLocal = (Resolve-Path "pics").Path
+        # mkdir schlaegt fehl wenn Ordner existiert -> batch continue nur darum herum
+        $picsCmd = @"
+
+synchronize remote "${picsLocal}" "${SFTP_PATH}/pics"
+"@
+        Info "pics-Ordner wird ebenfalls hochgeladen."
+    } else {
+        Warn "Unterordner 'pics' nicht gefunden - wird uebersprungen."
+    }
+
     $tmpScript = [System.IO.Path]::GetTempFileName()
     @"
 open sftp://${SFTP_USER}@${SFTP_HOST}/ -password="$SFTP_PASS" -hostkey=*
-$putCommands
+$putCommands$picsCmd
 exit
 "@ | Set-Content $tmpScript -Encoding UTF8
 
     try {
-        Info "Lade $($uploadFiles.Count) Dateien hoch nach sftp://${SFTP_HOST}${SFTP_PATH}/ ..."
+        $totalDesc = if ($picsCmd) { "$($uploadFiles.Count) Dateien + Ordner 'pics'" } else { "$($uploadFiles.Count) Dateien" }
+        Info "Lade $totalDesc hoch nach sftp://${SFTP_HOST}${SFTP_PATH}/ ..."
         & $winscpExe /ini=nul /script=$tmpScript
         if ($LASTEXITCODE -ne 0) { throw "WinSCP exit $LASTEXITCODE" }
         Info "Upload erfolgreich abgeschlossen."
