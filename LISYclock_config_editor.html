@@ -49,7 +49,7 @@
     .tab-content { min-height: 400px; }
     #fileInput { display: none; }
     .navbar-brand { font-size: 1rem; }
-    .led-label { font-size: 0.8rem; color: #555; white-space: nowrap; }
+    .led-label { font-size: 0.8rem; color: #666; white-space: nowrap; }
     input[type="color"].form-control-color {
       padding: 1px 2px;
       cursor: pointer;
@@ -65,6 +65,105 @@
     }
     .status-dot.ok   { background: #22c55e; border-color: #16a34a; }
     .status-dot.fail { background: #ef4444; border-color: #dc2626; }
+
+    /* ---- USB Tab ---- */
+    #usb-wrapper {
+      background: #080c0a; color: #c8f0d8;
+      font-family: 'Share Tech Mono', monospace;
+      border-radius: 4px; overflow: hidden;
+      display: flex; flex-direction: column; min-height: 480px;
+    }
+    #usb-header {
+      display: flex; align-items: center; gap: 16px;
+      padding: 10px 16px; border-bottom: 1px solid #1a2e20;
+      background: #0d1410; flex-shrink: 0;
+    }
+    #usb-controls {
+      display: flex; gap: 8px; padding: 8px 16px;
+      border-bottom: 1px solid #1a2e20; align-items: center;
+      flex-wrap: wrap; flex-shrink: 0; background: #0d1410;
+    }
+    #usb-controls select, #usb-controls button {
+      background: #0a1a10; color: #00ff88; border: 1px solid #1a2e20;
+      font-family: 'Share Tech Mono', monospace; font-size: 12px;
+      padding: 5px 10px; cursor: pointer; transition: all 0.2s;
+    }
+    #usb-controls select { color: #c8f0d8; }
+    #usb-controls select option { background: #0a1a10; }
+    #usb-controls button:hover { border-color: #00ff88; background: rgba(0,255,136,0.15); }
+    .usb-btn-primary {
+      background: rgba(0,255,136,0.12) !important; border-color: #00ff88 !important;
+      color: #00ff88 !important; font-weight: bold; letter-spacing: 1px;
+    }
+    .usb-btn-primary:hover { background: rgba(0,255,136,0.25) !important; }
+    .usb-btn-primary.usb-active {
+      background: rgba(255,68,68,0.15) !important;
+      border-color: #ff4444 !important; color: #ff4444 !important;
+    }
+    .usb-btn-danger { border-color: #333 !important; color: #556 !important; }
+    .usb-btn-danger:hover {
+      border-color: #ff4444 !important; color: #ff4444 !important;
+      background: rgba(255,68,68,0.1) !important;
+    }
+    .usb-cb { font-size: 11px; color: #556; display: flex; align-items: center; gap: 6px; }
+    .usb-cb input[type=checkbox] { accent-color: #00ff88; }
+    .usb-sep { width: 1px; height: 20px; background: #1a2e20; margin: 0 4px; }
+    #usb-handshake-banner {
+      display: none; padding: 6px 16px;
+      background: rgba(255,170,0,0.08); border-bottom: 1px solid rgba(255,170,0,0.2);
+      font-size: 11px; color: #ffaa00; flex-shrink: 0; align-items: center; gap: 10px;
+    }
+    #usb-handshake-banner.usb-hs-visible { display: flex; }
+    .usb-hs-progress { flex: 1; height: 2px; background: #1a2e20; overflow: hidden; }
+    .usb-hs-bar { height: 100%; background: #ffaa00; width: 0%; transition: width 0.1s linear; }
+    #usb-console {
+      flex: 1; overflow-y: auto; padding: 10px 16px;
+      font-size: 13px; line-height: 1.8; min-height: 250px; max-height: 350px;
+      scrollbar-width: thin; scrollbar-color: #1a2e20 transparent; background: #080c0a;
+    }
+    #usb-console::-webkit-scrollbar { width: 6px; }
+    #usb-console::-webkit-scrollbar-thumb { background: #1a2e20; }
+    .usb-line { display: flex; gap: 8px; }
+    .usb-ts { color: #3a5040; font-size: 11px; flex-shrink: 0; margin-top: 2px; min-width: 70px; }
+    .usb-rx { color: #33ffaa; }
+    .usb-sys { color: #4a6050; font-style: italic; }
+    .usb-err { color: #ff6666; }
+    .usb-boot { color: #3a5040; }
+    /* WiFi tab mini-console */
+    #wifi-console {
+      background: #080c0a; color: #c8f0d8; font-family: 'Share Tech Mono', monospace;
+      border-radius: 4px; overflow-y: auto; padding: 8px 12px;
+      font-size: 12px; line-height: 1.6; height: 150px;
+      scrollbar-width: thin; scrollbar-color: #1a2e20 transparent;
+    }
+    #wifi-console::-webkit-scrollbar { width: 6px; }
+    #wifi-console::-webkit-scrollbar-thumb { background: #1a2e20; }
+    .wifi-line { display: flex; gap: 8px; }
+    .wifi-rx { color: #33ffaa; }
+    .wifi-err { color: #ff6666; }
+    .wifi-sys { color: #4a6050; font-style: italic; }
+    .usb-status-dot {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+      background: #ff4444; transition: all 0.3s; vertical-align: middle; flex-shrink: 0;
+    }
+    .usb-status-dot.usb-connected { background: #00ff88; box-shadow: 0 0 8px #00ff88; animation: usbPulse 2s infinite; }
+    .usb-status-dot.usb-handshaking { background: #ffaa00; box-shadow: 0 0 8px #ffaa00; animation: usbPulse 0.5s infinite; }
+    @keyframes usbPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    #usb-status-text { font-size: 11px; color: #446; font-family: 'Share Tech Mono', monospace; }
+    #usb-status-text.usb-connected { color: #00cc66; }
+    #usb-status-text.usb-handshaking { color: #ffaa00; }
+    .usb-toggle-switch { position: relative; width: 36px; height: 18px; display: inline-block; }
+    .usb-toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .usb-toggle-slider {
+      position: absolute; inset: 0; background: #1a2e20; border: 1px solid #2a4030;
+      border-radius: 18px; cursor: pointer; transition: 0.3s;
+    }
+    .usb-toggle-slider::before {
+      content: ''; position: absolute; width: 12px; height: 12px;
+      left: 2px; top: 2px; background: #446; border-radius: 50%; transition: 0.3s;
+    }
+    .usb-toggle-switch input:checked + .usb-toggle-slider { background: rgba(0,255,136,0.15); border-color: #00ff88; }
+    .usb-toggle-switch input:checked + .usb-toggle-slider::before { transform: translateX(18px); background: #00ff88; }
   </style>
 </head>
 <body class="bg-light">
@@ -84,7 +183,7 @@
 
 <!-- Navbar / Toolbar -->
 <nav class="navbar navbar-dark bg-dark px-3 py-2">
-  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.09</small></span>
+  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.10</small></span>
   <span id="currentFileName" class="text-secondary text-truncate mx-auto"
         style="max-width:40%; font-size:0.85rem;" title="">&#8212; no file open &#8212;</span>
   <div class="d-flex gap-2 flex-wrap">
@@ -115,6 +214,15 @@
     </li>
     <li class="nav-item" role="presentation">
       <a class="nav-link" id="tab-tts" data-bs-toggle="tab" href="#tabTTS" role="tab">TTS Settings</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="tab-update" data-bs-toggle="tab" href="#tabUpdate" role="tab">Update</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="tab-wifi" data-bs-toggle="tab" href="#tabWiFi" role="tab">WiFi</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="tab-debug" data-bs-toggle="tab" href="#tabDebug" role="tab">Debug</a>
     </li>
   </ul>
 
@@ -316,6 +424,46 @@
       </div>
     </div><!-- /tabTTS -->
 
+    <!-- ======================================================= UPDATE TAB -->
+    <div class="tab-pane fade" id="tabUpdate" role="tabpanel">
+      <h5 class="mb-3">Update Firmware</h5>
+      <div class="row g-3">
+
+        <div class="col-12">
+          <h6>Upload local firmware file</h6>
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <input type="file" accept=".bin" class="form-control form-control-sm" id="clockUpdateInput" style="max-width:350px">
+            <button class="btn btn-warning btn-sm" id="btnClockUpdate">Update &amp; Reboot</button>
+            <span class="small text-muted" id="clockUpdateStatus"></span>
+          </div>
+        </div>
+
+        <div class="col-12"><hr class="my-1">
+          <h6 class="mt-2">Or select from lisy.dev</h6>
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <button class="btn btn-outline-secondary btn-sm" id="btnFetchServerFw">Fetch versions</button>
+            <select class="form-select form-select-sm d-none" id="serverFwSelect" style="max-width:300px">
+              <option value="">— select —</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-12"><hr class="my-1">
+          <h6 class="mt-2">Flash via USB (full installation)</h6>
+          <p class="small text-muted mb-2">
+            Writes bootloader, firmware, partition table and OTA data directly via USB to the ESP32.
+            No Wi-Fi connection required. Chrome/Edge only.
+          </p>
+          <div class="d-flex gap-2 flex-wrap align-items-center mb-2">
+            <button class="btn btn-danger btn-sm" id="btnUsbFlash">&#x26A1; Flash via USB</button>
+            <span class="small text-muted" id="usbFlashStatus"></span>
+          </div>
+          <div id="usbFlashLog" class="d-none font-monospace small border rounded p-2"
+               style="background:#111;color:#00ff88;max-height:200px;overflow-y:auto;white-space:pre-wrap;"></div>
+        </div>
+      </div>
+    </div><!-- /tabUpdate -->
+
     <!-- ======================================================= CLOCK TAB -->
     <div class="tab-pane fade show active" id="tabClock" role="tabpanel">
       <div id="mixedContentWarning" class="alert alert-warning d-none" role="alert">
@@ -358,23 +506,6 @@
           </div>
         </div>
 
-        <!-- Update Firmware -->
-        <div class="col-12"><hr class="my-1">
-          <h6 class="mt-3">Update Firmware</h6>
-          <div class="d-flex gap-2 flex-wrap align-items-center">
-            <input type="file" accept=".bin" class="form-control form-control-sm" id="clockUpdateInput" style="max-width:350px">
-            <button class="btn btn-warning btn-sm" id="btnClockUpdate">Update &amp; Reboot</button>
-            <span class="small text-muted" id="clockUpdateStatus"></span>
-          </div>
-          <div class="d-flex gap-2 flex-wrap align-items-center mt-1">
-            <span class="small text-muted">Or select from lisy.dev:</span>
-            <button class="btn btn-outline-secondary btn-sm" id="btnFetchServerFw">Fetch versions</button>
-            <select class="form-select form-select-sm d-none" id="serverFwSelect" style="max-width:300px">
-              <option value="">— select —</option>
-            </select>
-          </div>
-        </div>
-
         <!-- File upload -->
         <div class="col-12"><hr class="my-1">
           <h6 class="mt-3">Upload File to Clock</h6>
@@ -396,6 +527,150 @@
 
       </div>
     </div><!-- /tabClock -->
+
+    <!-- ======================================================= WIFI TAB -->
+    <div class="tab-pane fade" id="tabWiFi" role="tabpanel">
+      <h5 class="mb-3">WiFi Configuration via USB</h5>
+
+      <!-- USB Connection -->
+      <div class="row g-3 mb-3">
+        <div class="col-auto">
+          <label class="form-label">Baud Rate</label>
+          <select class="form-select form-select-sm" id="wifi-baud">
+            <option value="9600">9600</option>
+            <option value="115200" selected>115200</option>
+            <option value="230400">230400</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <label class="form-label">Reset Delay</label>
+          <select class="form-select form-select-sm" id="wifi-reset-delay">
+            <option value="500">500ms</option>
+            <option value="1000">1000ms</option>
+            <option value="1500" selected>1500ms</option>
+            <option value="2000">2000ms</option>
+            <option value="2500">2500ms</option>
+            <option value="3000">3000ms</option>
+          </select>
+        </div>
+        <div class="col-auto d-flex align-items-end gap-2">
+          <button class="btn btn-outline-primary btn-sm" id="wifi-connect-btn" onclick="wifiUsbToggleConnect()">Connect USB</button>
+          <span class="status-dot" id="wifi-usb-dot" title="Not connected"></span>
+          <span class="small text-muted" id="wifi-usb-status">Disconnected</span>
+        </div>
+      </div>
+      <div class="alert alert-info py-2 px-3 mb-3" style="font-size:0.85em;">
+        <strong>Note:</strong> The clock reboots once when you click <em>Connect USB</em>. This is normal — the reboot triggers the USB handshake. Wait for the status to show <em>Connected</em> before testing WiFi.
+      </div>
+
+      <hr>
+
+      <!-- WiFi Settings -->
+      <div class="row g-3 mb-3">
+        <div class="col-12">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="wifi_enabled_cb" checked>
+            <label class="form-check-label" for="wifi_enabled_cb">WiFi Enabled</label>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <label class="form-label">SSID</label>
+          <input type="text" class="form-control" id="wifi_ssid" placeholder="Your WiFi network name">
+        </div>
+        <div class="col-md-4 col-sm-6">
+          <label class="form-label">Password</label>
+          <div class="input-group">
+            <input type="password" class="form-control" id="wifi_pwd" placeholder="WiFi password">
+            <button class="btn btn-outline-secondary btn-sm" type="button" onclick="wifiTogglePwd()">Show</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 align-items-center mb-3">
+        <button class="btn btn-primary btn-sm" id="wifi-test-btn" onclick="wifiTestConnection()">Test WiFi Connection</button>
+        <span class="status-dot" id="wifi-test-dot"></span>
+        <span class="small text-muted" id="wifi-test-status"></span>
+      </div>
+
+      <hr>
+      <div class="d-flex gap-2 align-items-center mb-3">
+        <button class="btn btn-outline-secondary btn-sm" onclick="wifiSetTimeFromPC()">Set Clock Time from PC</button>
+        <span class="small text-muted" id="wifi-settime-status"></span>
+      </div>
+
+      <!-- Mini console -->
+      <h6>Protocol Log</h6>
+      <div id="wifi-console">
+        <div class="wifi-line"><span class="wifi-sys">// WiFi configuration via USB serial</span></div>
+      </div>
+    </div><!-- /tabWiFi -->
+
+    <!-- ======================================================= DEBUG TAB -->
+    <div class="tab-pane fade" id="tabDebug" role="tabpanel">
+      <div id="usb-wrapper">
+        <div id="usb-header">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:14px;color:#00ff88;letter-spacing:1px;">DEBUG CONSOLE</span>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:14px;">
+            <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#446;">
+              <span>Handshake</span>
+              <label class="usb-toggle-switch">
+                <input type="checkbox" id="usb-hs-enable" checked>
+                <span class="usb-toggle-slider"></span>
+              </label>
+            </div>
+            <span class="usb-status-dot" id="usb-dot"></span>
+            <span id="usb-status-text">DISCONNECTED</span>
+            <span style="font-size:10px;color:#223028;font-family:'Share Tech Mono',monospace;">
+              DTR:&nbsp;<span id="usb-dtr-state" style="color:#2a3a28;">LOW</span>&nbsp;&nbsp;
+              RTS:&nbsp;<span id="usb-rts-state" style="color:#2a3a28;">LOW</span>
+            </span>
+          </div>
+        </div>
+        <div id="usb-controls">
+          <select id="usb-baud">
+            <option value="9600">9600</option>
+            <option value="19200">19200</option>
+            <option value="38400">38400</option>
+            <option value="57600">57600</option>
+            <option value="115200" selected>115200</option>
+            <option value="230400">230400</option>
+            <option value="460800">460800</option>
+          </select>
+          <select id="usb-reset-delay" title="Wait time after connect before handshake is sent">
+            <option value="500">500ms Delay</option>
+            <option value="1000">1000ms Delay</option>
+            <option value="1500" selected>1500ms Delay</option>
+            <option value="2000">2000ms Delay</option>
+            <option value="2500">2500ms Delay</option>
+            <option value="3000">3000ms Delay</option>
+          </select>
+          <button class="usb-btn-primary" id="usb-connect-btn" onclick="usbToggleConnect()">&#x23FB; CONNECT</button>
+          <div class="usb-sep"></div>
+          <label class="usb-cb"><input type="checkbox" id="usb-show-boot"> Boot Logs</label>
+          <label class="usb-cb"><input type="checkbox" id="usb-autoscroll" checked> Auto-Scroll</label>
+          <label class="usb-cb"><input type="checkbox" id="usb-timestamp"> Timestamp</label>
+          <div class="usb-sep"></div>
+          <select id="usb-lineend">
+            <option value="\n">NL (\n)</option>
+            <option value="\r\n" selected>CR+NL</option>
+            <option value="\r">CR</option>
+            <option value="">None</option>
+          </select>
+          <button class="usb-btn-danger" onclick="usbClearConsole()">&#8855; CLEAR</button>
+        </div>
+        <div id="usb-handshake-banner">
+          <span id="usb-hs-msg">&#x23F3; Waiting for ESP32 reset...</span>
+          <div class="usb-hs-progress"><div class="usb-hs-bar" id="usb-hs-bar"></div></div>
+          <span id="usb-hs-time">0ms</span>
+        </div>
+        <div id="usb-console">
+          <div class="usb-line"><span class="usb-sys">// LISYclock Debug Console &mdash; Web Serial API (Chrome/Edge only)</span></div>
+          <div class="usb-line"><span class="usb-sys">// Note: The clock reboots once when Connect is clicked &mdash; this is normal</span></div>
+          <div class="usb-line"><span class="usb-sys">// Handshake ON: sends 0x55, waits for OK:READY from ESP32</span></div>
+          <div class="usb-line"><span class="usb-sys">// Handshake OFF: direct connection, all output visible immediately</span></div>
+        </div>
+      </div>
+    </div><!-- /tabDebug -->
 
   </div><!-- /tab-content -->
 </div><!-- /container -->
@@ -449,6 +724,7 @@ function resetState() {
       { blink_rate: 120, rand_enabled: false, rand: 1, leds: [] },
       { blink_rate: 120, rand_enabled: false, rand: 1, leds: [] }
     ],
+    wifi: { enabled: true, ssid: '', pwd: '' },
     _fileHandle: null,
     _unknown: []
   };
@@ -484,7 +760,10 @@ function parseConfig(text) {
       value = value.slice(1, -1);
     }
 
-    if (key === 'TTS_WIT_TOKEN')      { state.tts.wit_token  = value; }
+    if (key === 'WIFI_ENABLE')         { state.wifi.enabled   = (value.toLowerCase() === 'yes'); }
+    else if (key === 'WIFI_SSID')     { state.wifi.ssid      = value; }
+    else if (key === 'WIFI_PWD')      { state.wifi.pwd       = value; }
+    else if (key === 'TTS_WIT_TOKEN') { state.tts.wit_token  = value; }
     else if (key === 'TTS_VOICE')     { state.tts.voice      = value; }
     else if (key === 'TTS_STYLE')     { state.tts.style      = value; }
     else if (key === 'TTS_SPEED')     { state.tts.speed      = +value; }
@@ -566,6 +845,15 @@ function generateConfig() {
 
   L.push('# config for LISYclock 2.35');
   L.push("# lines starting with '#' are comments");
+  L.push('');
+
+  // --- WiFi ---
+  L.push('#WiFi is enabled by default');
+  L.push('#clock will fallback to DS3231 RTC module when disabled');
+  L.push('#WiFi On/Off, SSID and Passwort settings only possible via WiFi Tab in Editor');
+  L.push(`WIFI_ENABLE=${state.wifi.enabled ? 'yes' : 'no'}`);
+  L.push(`WIFI_SSID="${state.wifi.ssid}"`);
+  L.push(`WIFI_PWD="${state.wifi.pwd}"`);
   L.push('');
 
   // --- TTS ---
@@ -1627,6 +1915,110 @@ async function clockUpdateFirmware() {
   }
 }
 
+async function usbFlashESP32() {
+  if (!('serial' in navigator)) {
+    showToast('Web Serial API nicht verfügbar — nur Chrome/Edge Desktop.', 'danger');
+    return;
+  }
+  const FILES = [
+    { name: 'bootloader.bin',       address: 0x0 },
+    { name: 'partition-table.bin',  address: 0x8000 },
+    { name: 'ota_data_initial.bin', address: 0xf000 },
+    { name: 'LISYclock.bin',        address: 0x20000 },
+  ];
+  const BASE_URL = 'https://lisy.dev/swrep/misc/LISYclock/esptool/';
+
+  const btn = document.getElementById('btnUsbFlash');
+  const statusEl = document.getElementById('usbFlashStatus');
+  const logEl = document.getElementById('usbFlashLog');
+
+  function flashLog(msg) {
+    logEl.classList.remove('d-none');
+    logEl.textContent += msg + '\n';
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  btn.disabled = true;
+  logEl.textContent = '';
+  statusEl.textContent = '';
+
+  let transport = null;
+  try {
+    // 1. Download firmware files
+    flashLog('Downloading firmware files from lisy.dev...');
+    const fileArray = [];
+    for (const f of FILES) {
+      flashLog(`  Fetching ${f.name}...`);
+      const resp = await fetch(BASE_URL + f.name);
+      if (!resp.ok) throw new Error(`Download failed: ${f.name} (HTTP ${resp.status})`);
+      const buf = await resp.arrayBuffer();
+      // esptool-js expects binary string (Latin-1)
+      const bytes = new Uint8Array(buf);
+      let data = '';
+      for (let i = 0; i < bytes.length; i++) data += String.fromCharCode(bytes[i]);
+      fileArray.push({ data, address: f.address });
+      flashLog(`  OK (${(buf.byteLength / 1024).toFixed(1)} KB)`);
+    }
+
+    // 2. esptool-js laden (esm.sh bündelt atob-lite und alle Deps inline)
+    flashLog('Loading esptool-js...');
+    const { ESPLoader, Transport } = await import('https://esm.sh/esptool-js@0.4.1');
+
+    // 3. USB connection
+    flashLog('Please select a USB device in the browser dialog...');
+    const port = await navigator.serial.requestPort();
+    transport = new Transport(port, false);
+    const terminal = {
+      clean() {},
+      writeLine(data) { flashLog(data); },
+      write(data) {}
+    };
+    const esploader = new ESPLoader({ transport, baudrate: 115200, terminal });
+
+    // 4. Connect to chip
+    flashLog('Connecting to ESP32...');
+    const chip = await esploader.main();
+    flashLog(`Chip: ${chip}`);
+
+    // 5. Flash
+    flashLog('Starting flash...');
+    await esploader.writeFlash({
+      fileArray,
+      flashSize: 'keep',
+      eraseAll: false,
+      compress: true,
+      reportProgress(fileIndex, written, total) {
+        const pct = Math.round(written / total * 100);
+        statusEl.textContent = `${FILES[fileIndex].name}: ${pct}%`;
+        if (written === total) flashLog(`  ${FILES[fileIndex].name} done.`);
+      }
+    });
+
+    // 6. Reset & disconnect
+    flashLog('Flash complete! Resetting ESP32...');
+    await esploader.hardReset();
+    await transport.disconnect();
+    transport = null;
+
+    statusEl.textContent = 'Done!';
+    showToast('ESP32 flashed successfully!', 'success');
+    flashLog('Done. Clock is restarting.');
+
+  } catch (err) {
+    if (err.name === 'NotSelectedError') {
+      flashLog('Cancelled (no device selected).');
+      statusEl.textContent = '';
+    } else {
+      flashLog('Error: ' + err.message);
+      showToast('Flash failed: ' + err.message, 'danger');
+      statusEl.textContent = 'Error';
+    }
+    if (transport) { try { await transport.disconnect(); } catch(e) {} }
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 async function clockRefreshFiles() {
   const ip = document.getElementById('clock_ip').value.trim();
   if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
@@ -1728,7 +2120,478 @@ document.getElementById('btnClockUploadFile').addEventListener('click', clockUpl
 document.getElementById('btnClockReboot').addEventListener('click', clockReboot);
 document.getElementById('btnClockUpdate').addEventListener('click', clockUpdateFirmware);
 document.getElementById('btnFetchServerFw').addEventListener('click', clockFetchServerFirmware);
+document.getElementById('btnUsbFlash').addEventListener('click', usbFlashESP32);
 document.getElementById('btnClockRefreshFiles').addEventListener('click', clockRefreshFiles);
+
+// =============================================================================
+// USB TAB — Web Serial Console
+// =============================================================================
+
+let usb_port = null, usb_reader = null;
+let usb_readActive = false;
+let usb_handshakeDone = false;
+let usb_bootBuffer = [];
+let usb_hsInterval = null, usb_hsStart = 0;
+
+const USB_HANDSHAKE_BYTE = new Uint8Array([0x55]);
+const USB_HANDSHAKE_RESPONSE = 'OK:READY';
+
+function usbLog(text, type = 'usb-rx') {
+  const showTs = document.getElementById('usb-timestamp').checked;
+  const con = document.getElementById('usb-console');
+  const line = document.createElement('div');
+  line.className = 'usb-line';
+  if (showTs) {
+    const ts = document.createElement('span');
+    ts.className = 'usb-ts';
+    const now = new Date();
+    ts.textContent = now.toLocaleTimeString('de', {hour12: false}) + '.' + String(now.getMilliseconds()).padStart(3, '0');
+    line.appendChild(ts);
+  }
+  const msg = document.createElement('span');
+  msg.className = type;
+  msg.textContent = (type === 'usb-tx' ? '>> ' : '') + text;
+  line.appendChild(msg);
+  con.appendChild(line);
+  if (document.getElementById('usb-autoscroll').checked) con.scrollTop = con.scrollHeight;
+}
+
+async function usbToggleConnect() {
+  if (usb_port) { await usbDisconnect(); return; }
+  await usbConnect();
+}
+
+async function usbConnect() {
+  if (!('serial' in navigator)) {
+    usbLog('Web Serial API nicht verfügbar — nur Chrome/Edge Desktop unterstützt.', 'usb-err');
+    return;
+  }
+  try {
+    usb_port = await navigator.serial.requestPort();
+    const baud = parseInt(document.getElementById('usb-baud').value);
+    await usb_port.open({ baudRate: baud });
+    try {
+      await usb_port.setSignals({ dataTerminalReady: false, requestToSend: false });
+      usbUpdateSignalDisplay(false, false);
+    } catch(e) {}
+
+    usb_handshakeDone = false;
+    usb_bootBuffer = [];
+    usb_readActive = true;
+
+    const useHandshake = document.getElementById('usb-hs-enable').checked;
+    if (useHandshake) {
+      usbSetPhase('handshaking');
+      usbShowHandshakeBanner(true);
+      usbStartHandshakeProgress();
+      const delay = parseInt(document.getElementById('usb-reset-delay').value);
+      usbReadLoop();
+      document.getElementById('usb-hs-msg').textContent = `\u23F3 Waiting ${delay}ms (ESP32 rebooting)...`;
+      await usbSleep(delay);
+      document.getElementById('usb-hs-msg').textContent = '\uD83D\uDCE1 Sending handshake byte (0x55)...';
+      await usbWriteRaw(USB_HANDSHAKE_BYTE);
+      const ok = await usbWaitForReady(3000);
+      clearInterval(usb_hsInterval);
+      if (ok) {
+        usb_handshakeDone = true;
+        usbShowHandshakeBanner(false);
+        usbSetPhase('connected');
+        usbLog('Handshake successful \u2014 Connected', 'usb-sys');
+        if (document.getElementById('usb-show-boot').checked && usb_bootBuffer.length > 0) {
+          usbLog('\u2500\u2500 Boot Log \u2500\u2500', 'usb-sys');
+          usb_bootBuffer.forEach(l => usbLog(l, 'usb-boot'));
+          usbLog('\u2500\u2500 End Boot Log \u2500\u2500', 'usb-sys');
+        }
+        usb_bootBuffer = [];
+
+      } else {
+        usbShowHandshakeBanner(false);
+        usbLog('\u26A0 No OK:READY received \u2014 connecting directly', 'usb-err');
+        usb_handshakeDone = true;
+        usbSetPhase('connected');
+
+      }
+    } else {
+      usb_handshakeDone = true;
+      usbReadLoop();
+      usbSetPhase('connected');
+      usbLog(`Direkt verbunden @ ${baud} Baud`, 'usb-sys');
+      usbEnableInput(true);
+    }
+  } catch(e) {
+    if (e.name !== 'NotSelectedError') usbLog('Fehler: ' + e.message, 'usb-err');
+    usb_port = null;
+    usbSetPhase('disconnected');
+  }
+}
+
+async function usbReadLoop() {
+  const decoder = new TextDecoderStream();
+  usb_port.readable.pipeTo(decoder.writable);
+  usb_reader = decoder.readable.getReader();
+  let buffer = '';
+  try {
+    while (usb_readActive) {
+      const { value, done } = await usb_reader.read();
+      if (done) break;
+      buffer += value;
+      const lines = buffer.split(/\r?\n/);
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line) continue;
+        if (!usb_handshakeDone) {
+          usb_bootBuffer.push(line);
+        } else if (wifiCmdResolve && (line.startsWith('OK:') || line.startsWith('ERR:'))) {
+          // Active WiFi command waiting — resolve regardless of exact prefix
+          wifiLog(line, line.startsWith('ERR:') ? 'wifi-err' : 'wifi-rx');
+          wifiCmdResolve(line); wifiCmdResolve = null;
+        } else if (line.startsWith('OK:WIFI_') || line.startsWith('OK:SSID_') || line.startsWith('OK:PWD_') || line.startsWith('ERR:WIFI_')) {
+          // Unsolicited WiFi messages (e.g. status updates)
+          wifiLog(line, line.startsWith('ERR:') ? 'wifi-err' : 'wifi-rx');
+        } else {
+          usbLog(line, 'usb-rx');
+        }
+      }
+    }
+  } catch(e) {
+    if (usb_readActive) usbLog('Verbindung unterbrochen: ' + e.message, 'usb-err');
+  }
+}
+
+function usbWaitForReady(timeout) {
+  return new Promise(resolve => {
+    const start = Date.now();
+    const check = setInterval(() => {
+      const idx = usb_bootBuffer.findIndex(l => l.includes(USB_HANDSHAKE_RESPONSE));
+      if (idx !== -1) {
+        clearInterval(check);
+        usb_bootBuffer.splice(idx, 1);
+        resolve(true);
+      } else if (Date.now() - start > timeout) {
+        clearInterval(check);
+        resolve(false);
+      }
+    }, 50);
+  });
+}
+
+async function usbWriteRaw(bytes) {
+  if (!usb_port || !usb_port.writable) return;
+  const w = usb_port.writable.getWriter();
+  await w.write(bytes);
+  w.releaseLock();
+}
+
+async function usbDisconnect() {
+  usb_readActive = false;
+  clearInterval(usb_hsInterval);
+  usbShowHandshakeBanner(false);
+  try {
+    if (usb_reader) { await usb_reader.cancel(); usb_reader = null; }
+    if (usb_port) { await usb_port.close(); usb_port = null; }
+  } catch(e) {}
+  usbSetPhase('disconnected');
+  usbUpdateSignalDisplay(false, false);
+
+  usbLog('Getrennt', 'usb-sys');
+}
+
+function usbClearConsole() { document.getElementById('usb-console').innerHTML = ''; }
+function usbSleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function usbSetPhase(phase) {
+  const dot = document.getElementById('usb-dot');
+  dot.className = 'usb-status-dot' + (phase === 'connected' ? ' usb-connected' : phase === 'handshaking' ? ' usb-handshaking' : '');
+  const labels = { disconnected: 'DISCONNECTED', handshaking: 'HANDSHAKE...', connected: 'CONNECTED' };
+  const st = document.getElementById('usb-status-text');
+  st.textContent = labels[phase];
+  st.className = phase === 'connected' ? 'usb-connected' : phase === 'handshaking' ? 'usb-handshaking' : '';
+  const btn = document.getElementById('usb-connect-btn');
+  btn.textContent = phase === 'disconnected' ? '\u23FB CONNECT' : '\u23FB DISCONNECT';
+  btn.className = 'usb-btn-primary' + (phase !== 'disconnected' ? ' usb-active' : '');
+}
+
+function usbShowHandshakeBanner(on) {
+  document.getElementById('usb-handshake-banner').className = on ? 'usb-hs-visible' : '';
+}
+
+function usbStartHandshakeProgress() {
+  usb_hsStart = Date.now();
+  const total = parseInt(document.getElementById('usb-reset-delay').value) + 3500;
+  const bar = document.getElementById('usb-hs-bar');
+  const timeEl = document.getElementById('usb-hs-time');
+  bar.style.width = '0%';
+  usb_hsInterval = setInterval(() => {
+    const elapsed = Date.now() - usb_hsStart;
+    bar.style.width = Math.min(100, (elapsed / total) * 100) + '%';
+    timeEl.textContent = elapsed + 'ms';
+  }, 50);
+}
+
+function usbUpdateSignalDisplay(dtr, rts) {
+  const dtrEl = document.getElementById('usb-dtr-state');
+  const rtsEl = document.getElementById('usb-rts-state');
+  dtrEl.textContent = dtr ? 'HIGH' : 'LOW';
+  dtrEl.style.color = dtr ? '#ffaa00' : '#2a3a28';
+  rtsEl.textContent = rts ? 'HIGH' : 'LOW';
+  rtsEl.style.color = rts ? '#ffaa00' : '#2a3a28';
+}
+
+// =============================================================================
+// WIFI TAB — USB-based WiFi Configuration
+// =============================================================================
+
+let wifiCmdResolve = null;
+let wifi_usb_port = null;
+let wifi_usb_connected = false;
+
+function wifiLog(text, type = 'wifi-rx') {
+  const con = document.getElementById('wifi-console');
+  const line = document.createElement('div');
+  line.className = 'wifi-line';
+  const msg = document.createElement('span');
+  msg.className = type;
+  msg.textContent = text;
+  line.appendChild(msg);
+  con.appendChild(line);
+  con.scrollTop = con.scrollHeight;
+}
+
+function wifiTogglePwd() {
+  const inp = document.getElementById('wifi_pwd');
+  const btn = inp.nextElementSibling;
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    btn.textContent = 'Hide';
+  } else {
+    inp.type = 'password';
+    btn.textContent = 'Show';
+  }
+}
+
+function wifiSetUsbStatus(ok, text) {
+  const dot = document.getElementById('wifi-usb-dot');
+  dot.className = 'status-dot' + (ok === true ? ' ok' : ok === false ? ' fail' : '');
+  document.getElementById('wifi-usb-status').textContent = text || '';
+}
+
+function wifiSetTestStatus(ok, text) {
+  const dot = document.getElementById('wifi-test-dot');
+  dot.className = 'status-dot' + (ok === true ? ' ok' : ok === false ? ' fail' : '');
+  document.getElementById('wifi-test-status').textContent = text || '';
+}
+
+// Send a command over USB and wait for a response line
+function wifiSendCmd(cmd, timeoutMs = 15000) {
+  return new Promise(async (resolve, reject) => {
+    if (!usb_port || !usb_port.writable) {
+      reject(new Error('USB not connected'));
+      return;
+    }
+    wifiLog('>> ' + cmd, 'wifi-sys');
+    const timer = setTimeout(() => {
+      wifiCmdResolve = null;
+      reject(new Error('Timeout'));
+    }, timeoutMs);
+    wifiCmdResolve = (line) => {
+      clearTimeout(timer);
+      resolve(line);
+    };
+    const encoder = new TextEncoder();
+    const w = usb_port.writable.getWriter();
+    await w.write(encoder.encode(cmd + '\r\n'));
+    w.releaseLock();
+  });
+}
+
+async function wifiUsbToggleConnect() {
+  if (usb_port) {
+    // Already connected via Debug tab — share the connection
+    wifi_usb_connected = true;
+    wifiSetUsbStatus(true, 'Connected (shared)');
+    wifiLog('Using existing USB connection', 'wifi-sys');
+    // Query current status
+    try {
+      const resp = await wifiSendCmd('WIFI:STATUS', 5000);
+      wifiLog(resp, 'wifi-rx');
+    } catch(e) {}
+    return;
+  }
+  // Need to open a new USB connection
+  if (!('serial' in navigator)) {
+    wifiLog('Web Serial API not available — Chrome/Edge only.', 'wifi-err');
+    return;
+  }
+  try {
+    usb_port = await navigator.serial.requestPort();
+    const baud = parseInt(document.getElementById('wifi-baud').value);
+    await usb_port.open({ baudRate: baud });
+    try { await usb_port.setSignals({ dataTerminalReady: false, requestToSend: false }); } catch(e) {}
+
+    usb_handshakeDone = false;
+    usb_bootBuffer = [];
+    usb_readActive = true;
+
+    wifiSetUsbStatus(null, 'Connecting...');
+    wifiLog('Connecting @ ' + baud + ' baud...', 'wifi-sys');
+
+    usbReadLoop();
+
+    const delay = parseInt(document.getElementById('wifi-reset-delay').value);
+    await usbSleep(delay);
+
+    wifiLog('Sending handshake (0x55)...', 'wifi-sys');
+    await usbWriteRaw(USB_HANDSHAKE_BYTE);
+    const ok = await usbWaitForReady(3000);
+
+    if (ok) {
+      usb_handshakeDone = true;
+      wifi_usb_connected = true;
+      usbSetPhase('connected');
+      wifiSetUsbStatus(null, 'Clock initializing...');
+      wifiLog('Handshake OK — waiting for clock to finish booting...', 'wifi-sys');
+      await usbSleep(2000);   // give app_main time to complete WiFi/NVS init
+      wifiSetUsbStatus(true, 'Connected');
+      wifiLog('Clock ready.', 'wifi-sys');
+      // Query current WiFi status
+      try {
+        const resp = await wifiSendCmd('WIFI:STATUS', 5000);
+        // Parse response: OK:WIFI_STATUS=yes|no,ssid,ip
+        const m = resp.match(/^OK:WIFI_STATUS=(\w+),([^,]*),(.*)$/);
+        if (m) {
+          if (!document.getElementById('wifi_ssid').value.trim()) {
+            document.getElementById('wifi_ssid').value = m[2] || '';
+            state.wifi.ssid = m[2] || '';
+          }
+          if (m[1] === 'yes' && m[3] !== 'none') {
+            wifiSetTestStatus(true, 'Connected: ' + m[3]);
+          }
+        }
+      } catch(e) {}
+    } else {
+      usb_handshakeDone = true;
+      wifi_usb_connected = true;
+      wifiSetUsbStatus(true, 'Connected (no handshake)');
+      wifiLog('No OK:READY — connected directly', 'wifi-err');
+      usbSetPhase('connected');
+    }
+
+    document.getElementById('wifi-connect-btn').textContent = 'Disconnect USB';
+  } catch(e) {
+    if (e.name !== 'NotSelectedError') wifiLog('Error: ' + e.message, 'wifi-err');
+    wifiSetUsbStatus(false, 'Failed');
+  }
+}
+
+async function wifiTestConnection() {
+  if (!usb_port || !usb_port.writable) {
+    showToast('Please connect USB first.', 'warning');
+    return;
+  }
+
+  const ssid = document.getElementById('wifi_ssid').value.trim();
+  const pwd = document.getElementById('wifi_pwd').value;
+
+  if (!ssid) {
+    showToast('Please enter an SSID.', 'warning');
+    return;
+  }
+
+  wifiSetTestStatus(null, 'Testing...');
+  wifiLog('Starting WiFi test...', 'wifi-sys');
+
+  try {
+    // Send SSID
+    let resp = await wifiSendCmd('WIFI:SET_SSID=' + ssid, 5000);
+    if (!resp.includes('OK:SSID_SET')) {
+      wifiSetTestStatus(false, 'Failed to set SSID');
+      return;
+    }
+
+    // Send Password
+    resp = await wifiSendCmd('WIFI:SET_PWD=' + pwd, 5000);
+    if (!resp.includes('OK:PWD_SET')) {
+      wifiSetTestStatus(false, 'Failed to set password');
+      return;
+    }
+
+    // Test connection (longer timeout — WiFi connect takes ~10s)
+    resp = await wifiSendCmd('WIFI:TEST', 15000);
+
+    if (resp.startsWith('OK:WIFI_CONNECTED=')) {
+      const ip = resp.split('=')[1];
+      wifiSetTestStatus(true, 'Connected! IP: ' + ip);
+      wifiLog('Success! IP: ' + ip, 'wifi-rx');
+
+      // Fill clock IP field and save to localStorage
+      document.getElementById('clock_ip').value = ip;
+      localStorage.setItem('lisyclock_ip', ip);
+
+      // Update state
+      state.wifi.ssid = ssid;
+      state.wifi.pwd = pwd;
+      state.wifi.enabled = true;
+
+      showToast('WiFi connected! IP: ' + ip, 'success');
+    } else {
+      // Failed
+      wifiSetTestStatus(false, 'Connection failed');
+      wifiLog('WiFi connection failed', 'wifi-err');
+
+      // Clear SSID/PWD fields
+      document.getElementById('wifi_ssid').value = '';
+      document.getElementById('wifi_pwd').value = '';
+      state.wifi.ssid = '';
+      state.wifi.pwd = '';
+
+      showToast('WiFi connection failed. Credentials cleared.', 'danger');
+    }
+  } catch(e) {
+    wifiSetTestStatus(false, 'Error: ' + e.message);
+    wifiLog('Error: ' + e.message, 'wifi-err');
+  }
+}
+
+async function wifiSetTimeFromPC() {
+  const statusEl = document.getElementById('wifi-settime-status');
+  if (!usb_port || !usb_port.writable) {
+    wifiLog('USB not connected', 'wifi-err');
+    return;
+  }
+  const ts = Math.floor(Date.now() / 1000);
+  wifiLog('Setting clock time to ' + new Date(ts * 1000).toLocaleString() + '...', 'wifi-sys');
+  statusEl.textContent = '';
+  try {
+    const resp = await wifiSendCmd('TIME:SET=' + ts, 5000);
+    if (resp.startsWith('OK:TIME_SET')) {
+      statusEl.textContent = 'Time set.';
+      wifiLog('Clock time updated.', 'wifi-rx');
+    } else {
+      statusEl.textContent = resp;
+      wifiLog(resp, 'wifi-err');
+    }
+  } catch(e) {
+    statusEl.textContent = 'Error: ' + e.message;
+    wifiLog('Error: ' + e.message, 'wifi-err');
+  }
+}
+
+// WiFi enable/disable listener
+document.getElementById('wifi_enabled_cb').addEventListener('change', function() {
+  state.wifi.enabled = this.checked;
+});
+document.getElementById('wifi_ssid').addEventListener('input', function() {
+  state.wifi.ssid = this.value;
+});
+document.getElementById('wifi_pwd').addEventListener('input', function() {
+  state.wifi.pwd = this.value;
+});
+
+function renderWiFi() {
+  document.getElementById('wifi_enabled_cb').checked = state.wifi.enabled;
+  document.getElementById('wifi_ssid').value = state.wifi.ssid;
+  document.getElementById('wifi_pwd').value = state.wifi.pwd;
+}
 
 // =============================================================================
 // RENDER ALL
@@ -1756,6 +2619,7 @@ function renderAll() {
   renderAttract();
   renderEvents();
   renderClock();
+  renderWiFi();
   renderParseWarnings();
 }
 
