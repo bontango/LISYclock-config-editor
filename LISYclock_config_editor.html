@@ -65,6 +65,7 @@
     }
     .status-dot.ok   { background: #22c55e; border-color: #16a34a; }
     .status-dot.fail { background: #ef4444; border-color: #dc2626; }
+    .clock-disabled { opacity: 0.4; pointer-events: none; }
 
     /* ---- USB Tab ---- */
     #usb-wrapper {
@@ -129,15 +130,7 @@
     .usb-sys { color: #4a6050; font-style: italic; }
     .usb-err { color: #ff6666; }
     .usb-boot { color: #3a5040; }
-    /* WiFi tab mini-console */
-    #wifi-console {
-      background: #080c0a; color: #c8f0d8; font-family: 'Share Tech Mono', monospace;
-      border-radius: 4px; overflow-y: auto; padding: 8px 12px;
-      font-size: 12px; line-height: 1.6; height: 150px;
-      scrollbar-width: thin; scrollbar-color: #1a2e20 transparent;
-    }
-    #wifi-console::-webkit-scrollbar { width: 6px; }
-    #wifi-console::-webkit-scrollbar-thumb { background: #1a2e20; }
+    /* Clock tab USB protocol log */
     .wifi-line { display: flex; gap: 8px; }
     .wifi-rx { color: #33ffaa; }
     .wifi-err { color: #ff6666; }
@@ -183,7 +176,7 @@
 
 <!-- Navbar / Toolbar -->
 <nav class="navbar navbar-dark bg-dark px-3 py-2">
-  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.10</small></span>
+  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.11</small></span>
   <span id="currentFileName" class="text-secondary text-truncate mx-auto"
         style="max-width:40%; font-size:0.85rem;" title="">&#8212; no file open &#8212;</span>
   <div class="d-flex gap-2 flex-wrap">
@@ -218,10 +211,7 @@
     <li class="nav-item" role="presentation">
       <a class="nav-link" id="tab-update" data-bs-toggle="tab" href="#tabUpdate" role="tab">Update</a>
     </li>
-    <li class="nav-item" role="presentation">
-      <a class="nav-link" id="tab-wifi" data-bs-toggle="tab" href="#tabWiFi" role="tab">WiFi</a>
-    </li>
-    <li class="nav-item" role="presentation">
+    <li class="nav-item ms-auto" role="presentation">
       <a class="nav-link" id="tab-debug" data-bs-toggle="tab" href="#tabDebug" role="tab">Debug</a>
     </li>
   </ul>
@@ -235,11 +225,26 @@
       <h5 class="mb-3">General Settings</h5>
       <div class="row g-3">
 
-        <div class="col-md-3 col-sm-5">
-          <label class="form-label">Display Brightness
-            <small class="text-muted">(0–7)</small>
-          </label>
-          <input type="number" class="form-control" id="disp_bright" min="0" max="7">
+        <div class="col-12">
+          <h6 class="mt-2">WiFi Settings</h6>
+          <div class="form-check mb-2">
+            <input type="checkbox" class="form-check-input" id="wifi_enabled_cb" checked>
+            <label class="form-check-label" for="wifi_enabled_cb">WiFi Enabled</label>
+          </div>
+          <div class="row g-2">
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">SSID</label>
+              <input type="text" class="form-control" id="wifi_ssid" placeholder="Your WiFi network name">
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">Password</label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="wifi_pwd" placeholder="WiFi password">
+                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="wifiTogglePwd()">Show</button>
+              </div>
+            </div>
+          </div>
+          <small class="text-muted">WiFi credentials are stored in config.txt. Use "Test WiFi Connection" in the Clock tab (USB mode) to test.</small>
         </div>
 
         <div class="col-12"><hr class="my-1">
@@ -255,9 +260,19 @@
             </div>
             <div class="col-md-3 col-sm-5">
               <label class="form-label">FTP Password</label>
-              <input type="text" class="form-control" id="ftp_pwd">
+              <div class="input-group">
+                <input type="password" class="form-control" id="ftp_pwd">
+                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="ftpTogglePwd()">Show</button>
+              </div>
             </div>
           </div>
+        </div>
+
+        <div class="col-md-3 col-sm-5"><hr class="my-1">
+          <label class="form-label mt-2">Display Brightness
+            <small class="text-muted">(0–7)</small>
+          </label>
+          <input type="number" class="form-control" id="disp_bright" min="0" max="7">
         </div>
 
         <div class="col-12"><hr class="my-1">
@@ -429,8 +444,8 @@
       <h5 class="mb-3">Update Firmware</h5>
       <div class="row g-3">
 
-        <div class="col-12">
-          <h6>Upload local firmware file</h6>
+        <div class="col-12" id="clockOtaSection">
+          <h6>Upload local firmware file <small class="text-muted fw-normal">(IP mode only)</small></h6>
           <div class="d-flex gap-2 flex-wrap align-items-center">
             <input type="file" accept=".bin" class="form-control form-control-sm" id="clockUpdateInput" style="max-width:350px">
             <button class="btn btn-warning btn-sm" id="btnClockUpdate">Update &amp; Reboot</button>
@@ -443,13 +458,13 @@
           <div class="d-flex gap-2 flex-wrap align-items-center">
             <button class="btn btn-outline-secondary btn-sm" id="btnFetchServerFw">Fetch versions</button>
             <select class="form-select form-select-sm d-none" id="serverFwSelect" style="max-width:300px">
-              <option value="">— select —</option>
+              <option value="">&mdash; select &mdash;</option>
             </select>
           </div>
         </div>
 
-        <div class="col-12"><hr class="my-1">
-          <h6 class="mt-2">Flash via USB (full installation)</h6>
+        <div class="col-12" id="clockUsbFlashSection"><hr class="my-1">
+          <h6 class="mt-2">Flash via USB (full installation) <small class="text-muted fw-normal">(USB mode only)</small></h6>
           <p class="small text-muted mb-2">
             Writes bootloader, firmware, partition table and OTA data directly via USB to the ESP32.
             No Wi-Fi connection required. Chrome/Edge only.
@@ -476,30 +491,100 @@
       <h5 class="mb-3">Clock Connection</h5>
       <div class="row g-3">
 
-        <!-- Connection -->
-        <div class="col-md-4 col-sm-6">
-          <label class="form-label">IP Address</label>
-          <input type="text" class="form-control font-monospace" id="clock_ip" placeholder="e.g. 192.168.1.100">
+        <!-- Mode Selection -->
+        <div class="col-12">
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="clockMode" id="clockModeIP" value="ip" checked>
+            <label class="form-check-label" for="clockModeIP">IP Mode</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="clockMode" id="clockModeUSB" value="usb">
+            <label class="form-check-label" for="clockModeUSB">USB Mode</label>
+          </div>
         </div>
 
-        <div class="col-md-4 col-sm-6 d-flex align-items-end gap-2">
-          <button class="btn btn-outline-primary btn-sm" id="btnClockTest">Connect Clock</button>
-          <span class="status-dot" id="clockStatusDot" title="Not tested"></span>
-          <span class="small text-muted" id="clockStatusText"></span>
+        <!-- IP Mode Connection -->
+        <div class="col-12" id="clockIPPanel">
+          <div class="row g-2 align-items-end">
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">IP Address</label>
+              <input type="text" class="form-control font-monospace" id="clock_ip" placeholder="e.g. 192.168.1.100">
+            </div>
+            <div class="col-auto d-flex gap-2 align-items-end">
+              <button class="btn btn-outline-primary btn-sm" id="btnClockTest">Connect Clock</button>
+              <span class="status-dot" id="clockStatusDot" title="Not tested"></span>
+              <span class="small text-muted" id="clockStatusText"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- USB Mode Connection -->
+        <div class="col-12 d-none" id="clockUSBPanel">
+          <div class="row g-2 align-items-end">
+            <div class="col-auto">
+              <label class="form-label">Baud Rate</label>
+              <select class="form-select form-select-sm" id="clock-usb-baud">
+                <option value="9600">9600</option>
+                <option value="115200" selected>115200</option>
+                <option value="230400">230400</option>
+              </select>
+            </div>
+            <div class="col-auto">
+              <label class="form-label">Reset Delay</label>
+              <select class="form-select form-select-sm" id="clock-usb-reset-delay">
+                <option value="500">500ms</option>
+                <option value="1000">1000ms</option>
+                <option value="1500" selected>1500ms</option>
+                <option value="2000">2000ms</option>
+                <option value="2500">2500ms</option>
+                <option value="3000">3000ms</option>
+              </select>
+            </div>
+            <div class="col-auto d-flex gap-2 align-items-end">
+              <button class="btn btn-outline-primary btn-sm" id="btnClockUsbConnect">Connect USB</button>
+              <span class="status-dot" id="clockUsbDot" title="Not connected"></span>
+              <span class="small text-muted" id="clockUsbStatus">Disconnected</span>
+            </div>
+          </div>
+          <div class="alert alert-info py-2 px-3 mt-2 mb-0" style="font-size:0.85em;">
+            <strong>Note:</strong> The clock reboots once when you click <em>Connect USB</em>. This is normal &mdash; the reboot triggers the USB handshake. Wait for the status to show <em>Connected</em>.
+          </div>
+        </div>
+
+        <!-- Test WiFi Connection (USB only) -->
+        <div class="col-12 d-none" id="clockWifiTestPanel">
+          <hr class="my-1">
+          <h6 class="mt-2">Test WiFi Connection <small class="text-muted fw-normal">(USB only)</small></h6>
+          <div class="d-flex gap-2 align-items-center">
+            <button class="btn btn-primary btn-sm" id="btnClockWifiTest">Test WiFi Connection</button>
+            <span class="status-dot" id="clockWifiTestDot"></span>
+            <span class="small text-muted" id="clockWifiTestStatus"></span>
+          </div>
+          <small class="text-muted">Reads SSID/Password from General tab and sends to clock for testing.</small>
         </div>
 
         <!-- Config transfer -->
         <div class="col-12"><hr class="my-1">
           <h6 class="mt-2">Config Transfer</h6>
           <div class="d-flex gap-2 flex-wrap">
-            <button class="btn btn-success btn-sm" id="btnClockUploadConfig">Upload Config to Clock</button>
+            <button class="btn btn-success btn-sm" id="btnClockUploadConfig" disabled>Upload Config to Clock</button>
             <button class="btn btn-outline-success btn-sm" id="btnClockDownloadConfig">Download Config from Clock</button>
+            <button class="btn btn-outline-secondary btn-sm" id="btnClockDownloadDefaultConfig">Download default config</button>
+          </div>
+        </div>
+
+        <!-- Set Clock Time -->
+        <div class="col-12"><hr class="my-1">
+          <h6 class="mt-2">Set Clock Time</h6>
+          <div class="d-flex gap-2 align-items-center">
+            <button class="btn btn-outline-secondary btn-sm" id="btnClockSetTime">Set Clock Time from PC</button>
+            <span class="small text-muted" id="clockSetTimeStatus"></span>
           </div>
         </div>
 
         <!-- Reboot Clock -->
         <div class="col-12"><hr class="my-1">
-          <h6 class="mt-3">Reboot Clock</h6>
+          <h6 class="mt-2">Reboot Clock</h6>
           <div class="d-flex gap-2 align-items-center">
             <button class="btn btn-danger btn-sm" id="btnClockReboot">Reboot Clock</button>
             <span class="small text-muted">needed for activation of new config</span>
@@ -508,7 +593,7 @@
 
         <!-- File upload -->
         <div class="col-12"><hr class="my-1">
-          <h6 class="mt-3">Upload File to Clock</h6>
+          <h6 class="mt-2">Upload File to Clock</h6>
           <div class="d-flex gap-2 flex-wrap align-items-center">
             <input type="file" class="form-control form-control-sm" id="clockFileInput" style="max-width:350px">
             <button class="btn btn-primary btn-sm" id="btnClockUploadFile">Upload File</button>
@@ -518,92 +603,25 @@
 
         <!-- SD Card Files -->
         <div class="col-12"><hr class="my-1">
-          <h6 class="mt-3">SD Card Files</h6>
+          <h6 class="mt-2">SD Card Files</h6>
           <div class="d-flex gap-2 align-items-center mb-2">
             <button class="btn btn-outline-secondary btn-sm" id="btnClockRefreshFiles">Refresh</button>
           </div>
           <div id="clockFilesList"></div>
         </div>
 
+        <!-- Protocol Log (USB only) -->
+        <div class="col-12 d-none" id="clockProtocolLogPanel">
+          <hr class="my-1">
+          <h6 class="mt-2">Protocol Log</h6>
+          <div id="clock-usb-console" style="background:#080c0a;color:#c8f0d8;font-family:'Share Tech Mono',monospace;border-radius:4px;overflow-y:auto;padding:8px 12px;font-size:12px;line-height:1.6;height:150px;scrollbar-width:thin;scrollbar-color:#1a2e20 transparent;">
+            <div class="wifi-line"><span class="wifi-sys">// USB protocol log</span></div>
+          </div>
+        </div>
+
       </div>
     </div><!-- /tabClock -->
 
-    <!-- ======================================================= WIFI TAB -->
-    <div class="tab-pane fade" id="tabWiFi" role="tabpanel">
-      <h5 class="mb-3">WiFi Configuration via USB</h5>
-
-      <!-- USB Connection -->
-      <div class="row g-3 mb-3">
-        <div class="col-auto">
-          <label class="form-label">Baud Rate</label>
-          <select class="form-select form-select-sm" id="wifi-baud">
-            <option value="9600">9600</option>
-            <option value="115200" selected>115200</option>
-            <option value="230400">230400</option>
-          </select>
-        </div>
-        <div class="col-auto">
-          <label class="form-label">Reset Delay</label>
-          <select class="form-select form-select-sm" id="wifi-reset-delay">
-            <option value="500">500ms</option>
-            <option value="1000">1000ms</option>
-            <option value="1500" selected>1500ms</option>
-            <option value="2000">2000ms</option>
-            <option value="2500">2500ms</option>
-            <option value="3000">3000ms</option>
-          </select>
-        </div>
-        <div class="col-auto d-flex align-items-end gap-2">
-          <button class="btn btn-outline-primary btn-sm" id="wifi-connect-btn" onclick="wifiUsbToggleConnect()">Connect USB</button>
-          <span class="status-dot" id="wifi-usb-dot" title="Not connected"></span>
-          <span class="small text-muted" id="wifi-usb-status">Disconnected</span>
-        </div>
-      </div>
-      <div class="alert alert-info py-2 px-3 mb-3" style="font-size:0.85em;">
-        <strong>Note:</strong> The clock reboots once when you click <em>Connect USB</em>. This is normal — the reboot triggers the USB handshake. Wait for the status to show <em>Connected</em> before testing WiFi.
-      </div>
-
-      <hr>
-
-      <!-- WiFi Settings -->
-      <div class="row g-3 mb-3">
-        <div class="col-12">
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="wifi_enabled_cb" checked>
-            <label class="form-check-label" for="wifi_enabled_cb">WiFi Enabled</label>
-          </div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <label class="form-label">SSID</label>
-          <input type="text" class="form-control" id="wifi_ssid" placeholder="Your WiFi network name">
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <label class="form-label">Password</label>
-          <div class="input-group">
-            <input type="password" class="form-control" id="wifi_pwd" placeholder="WiFi password">
-            <button class="btn btn-outline-secondary btn-sm" type="button" onclick="wifiTogglePwd()">Show</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="d-flex gap-2 align-items-center mb-3">
-        <button class="btn btn-primary btn-sm" id="wifi-test-btn" onclick="wifiTestConnection()">Test WiFi Connection</button>
-        <span class="status-dot" id="wifi-test-dot"></span>
-        <span class="small text-muted" id="wifi-test-status"></span>
-      </div>
-
-      <hr>
-      <div class="d-flex gap-2 align-items-center mb-3">
-        <button class="btn btn-outline-secondary btn-sm" onclick="wifiSetTimeFromPC()">Set Clock Time from PC</button>
-        <span class="small text-muted" id="wifi-settime-status"></span>
-      </div>
-
-      <!-- Mini console -->
-      <h6>Protocol Log</h6>
-      <div id="wifi-console">
-        <div class="wifi-line"><span class="wifi-sys">// WiFi configuration via USB serial</span></div>
-      </div>
-    </div><!-- /tabWiFi -->
 
     <!-- ======================================================= DEBUG TAB -->
     <div class="tab-pane fade" id="tabDebug" role="tabpanel">
@@ -1000,10 +1018,17 @@ function generateConfig() {
 
 const hasFileSystemAccess = typeof window.showOpenFilePicker === 'function';
 
+let configLoaded = false;
+
+function updateUploadBtn() {
+  document.getElementById('btnClockUploadConfig').disabled = !configLoaded;
+}
+
 function updateFileDisplay(name) {
   const el = document.getElementById('currentFileName');
   el.textContent = name || '\u2014 no file open \u2014';
   el.title = name || '';
+  updateUploadBtn();
 }
 
 async function openFile() {
@@ -1018,6 +1043,7 @@ async function openFile() {
       const text = await file.text();
       parseConfig(text);
       renderAll();
+      configLoaded = true;
       updateFileDisplay(file.name);
       showToast('Loaded: ' + file.name, 'success');
     } else {
@@ -1036,6 +1062,7 @@ document.getElementById('fileInput').addEventListener('change', function () {
   reader.onload = (ev) => {
     parseConfig(ev.target.result);
     renderAll();
+    configLoaded = true;
     updateFileDisplay(file.name);
     showToast('Loaded: ' + file.name, 'success');
   };
@@ -1104,10 +1131,11 @@ function triggerDownload(text, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
-function newConfig() {
-  if (!confirm('Reset all settings to defaults?')) return;
+async function newConfig() {
+  if (!await showConfirm('Reset all settings to defaults?')) return;
   resetState();
   renderAll();
+  configLoaded = true;
   updateFileDisplay('');
   showToast('New config created with defaults.', 'info');
 }
@@ -1130,6 +1158,18 @@ function showToast(msg, type) {
   el.classList.add('toast', 'align-items-center', 'text-white', 'border-0', 'bg-' + type);
   document.getElementById('toastMsg').textContent = msg;
   bootstrap.Toast.getOrCreateInstance(el, { delay: 3000 }).show();
+}
+
+function showConfirm(message) {
+  return new Promise(resolve => {
+    document.getElementById('confirmModalMsg').textContent = message;
+    const modalEl = document.getElementById('confirmModal');
+    const modal = new bootstrap.Modal(modalEl);
+    const okBtn = document.getElementById('confirmModalOk');
+    okBtn.onclick = () => { modal.hide(); resolve(true); };
+    modalEl.addEventListener('hidden.bs.modal', () => resolve(false), { once: true });
+    modal.show();
+  });
 }
 
 // =============================================================================
@@ -1679,6 +1719,41 @@ function escHtml(s) {
 
 const EXPECTED_API_VERSION = 2; // Must match HTTP_API_VERSION in LISYclock/main/httpserver.h and ESP32_source/API.md
 let clockMajorVersion = null; // set to 1 or 2 after successful connection
+let clockMode = localStorage.getItem('lisyclock_mode') || 'ip'; // 'ip' or 'usb'
+
+// ---------------------------------------------------------------------------
+// Clock Mode (IP/USB) switching
+// ---------------------------------------------------------------------------
+
+function setClockMode(mode) {
+  clockMode = mode;
+  localStorage.setItem('lisyclock_mode', mode);
+  document.getElementById('clockModeIP').checked = (mode === 'ip');
+  document.getElementById('clockModeUSB').checked = (mode === 'usb');
+  // Toggle panels
+  document.getElementById('clockIPPanel').classList.toggle('d-none', mode !== 'ip');
+  document.getElementById('clockUSBPanel').classList.toggle('d-none', mode !== 'usb');
+  document.getElementById('clockWifiTestPanel').classList.toggle('d-none', mode !== 'usb');
+  document.getElementById('clockProtocolLogPanel').classList.toggle('d-none', mode !== 'usb');
+  // Update tab greying
+  const otaSection = document.getElementById('clockOtaSection');
+  const usbFlashSection = document.getElementById('clockUsbFlashSection');
+  if (otaSection) otaSection.classList.toggle('clock-disabled', mode === 'usb');
+  if (usbFlashSection) usbFlashSection.classList.toggle('clock-disabled', mode === 'ip');
+  // Reset connection status on mode switch
+  if (mode === 'ip') {
+    setClockStatus(null, '');
+  } else {
+    setClockUsbStatus(null, 'Disconnected');
+  }
+}
+
+document.getElementById('clockModeIP').addEventListener('change', () => setClockMode('ip'));
+document.getElementById('clockModeUSB').addEventListener('change', () => setClockMode('usb'));
+
+// ---------------------------------------------------------------------------
+// IP Mode helpers
+// ---------------------------------------------------------------------------
 
 function clockBaseUrl() {
   const ip = document.getElementById('clock_ip').value.trim();
@@ -1692,13 +1767,179 @@ function setClockStatus(ok, text) {
   document.getElementById('clockStatusText').textContent = text || '';
 }
 
+function setClockUsbStatus(ok, text) {
+  const dot = document.getElementById('clockUsbDot');
+  dot.className = 'status-dot' + (ok === true ? ' ok' : ok === false ? ' fail' : '');
+  document.getElementById('clockUsbStatus').textContent = text || '';
+}
+
+// ---------------------------------------------------------------------------
+// USB Protocol Log (in Clock tab)
+// ---------------------------------------------------------------------------
+
+function clockUsbLog(text, type = 'wifi-rx') {
+  const con = document.getElementById('clock-usb-console');
+  const line = document.createElement('div');
+  line.className = 'wifi-line';
+  const msg = document.createElement('span');
+  msg.className = type;
+  msg.textContent = text;
+  line.appendChild(msg);
+  con.appendChild(line);
+  con.scrollTop = con.scrollHeight;
+}
+
+// ---------------------------------------------------------------------------
+// USB Data Framing (JS side)
+// ---------------------------------------------------------------------------
+
+let usbFrameResolve = null;   // set when waiting for a framed response
+let usbFrameBuffer = null;    // accumulates framed data
+let usbFrameType = null;      // 'text' or 'binary'
+let usbFrameLineCount = 0;
+
+// Send a simple command and wait for an OK:/ERR: response line
+function clockUsbSendCmd(cmd, timeoutMs = 15000) {
+  return new Promise(async (resolve, reject) => {
+    if (!usb_port || !usb_port.writable) {
+      reject(new Error('USB not connected'));
+      return;
+    }
+    clockUsbLog('>> ' + cmd, 'wifi-sys');
+    const timer = setTimeout(() => {
+      wifiCmdResolve = null;
+      reject(new Error('Timeout'));
+    }, timeoutMs);
+    wifiCmdResolve = (line) => {
+      clearTimeout(timer);
+      resolve(line);
+    };
+    const encoder = new TextEncoder();
+    const w = usb_port.writable.getWriter();
+    await w.write(encoder.encode(cmd + '\r\n'));
+    w.releaseLock();
+  });
+}
+
+// Send text data using DATA:BEGIN/DATA:END framing
+async function usbSendTextFrame(data) {
+  if (!usb_port || !usb_port.writable) throw new Error('USB not connected');
+  const encoder = new TextEncoder();
+  const lines = data.split('\n');
+  const w1 = usb_port.writable.getWriter();
+  await w1.write(encoder.encode('DATA:BEGIN=' + new Blob([data]).size + '\r\n'));
+  w1.releaseLock();
+
+  let lineCount = 0;
+  for (const line of lines) {
+    if (line === '' && lines.indexOf(line) === lines.length - 1) continue; // skip trailing empty
+    const w = usb_port.writable.getWriter();
+    await w.write(encoder.encode(line + '\r\n'));
+    w.releaseLock();
+    lineCount++;
+    if (lineCount % 8 === 0) {
+      await usbWaitForLine('OK:CHUNK_ACK', 5000);
+    }
+  }
+  const wEnd = usb_port.writable.getWriter();
+  await wEnd.write(encoder.encode('DATA:END\r\n'));
+  wEnd.releaseLock();
+}
+
+// Send binary data using BINDATA:BEGIN/BINDATA:END framing with base64
+async function usbSendBinaryFrame(arrayBuffer) {
+  if (!usb_port || !usb_port.writable) throw new Error('USB not connected');
+  const encoder = new TextEncoder();
+  const bytes = new Uint8Array(arrayBuffer);
+  const w1 = usb_port.writable.getWriter();
+  await w1.write(encoder.encode('BINDATA:BEGIN=' + bytes.length + '\r\n'));
+  w1.releaseLock();
+
+  const chunkSize = 144; // produces 192 base64 chars
+  let lineCount = 0;
+  for (let pos = 0; pos < bytes.length; pos += chunkSize) {
+    const chunk = bytes.slice(pos, pos + chunkSize);
+    // Convert to base64
+    let binary = '';
+    for (let i = 0; i < chunk.length; i++) binary += String.fromCharCode(chunk[i]);
+    const b64 = btoa(binary);
+    const w = usb_port.writable.getWriter();
+    await w.write(encoder.encode(b64 + '\r\n'));
+    w.releaseLock();
+    lineCount++;
+    if (lineCount % 8 === 0) {
+      await usbWaitForLine('OK:CHUNK_ACK', 5000);
+    }
+  }
+  const wEnd = usb_port.writable.getWriter();
+  await wEnd.write(encoder.encode('BINDATA:END\r\n'));
+  wEnd.releaseLock();
+}
+
+// Wait for a specific line from USB
+function usbWaitForLine(expected, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      wifiCmdResolve = null;
+      reject(new Error('Timeout waiting for ' + expected));
+    }, timeoutMs);
+    wifiCmdResolve = (line) => {
+      clearTimeout(timer);
+      if (line === expected || line.startsWith(expected)) {
+        resolve(line);
+      } else {
+        resolve(line); // resolve anyway, caller checks
+      }
+    };
+  });
+}
+
+// Receive a text data frame (DATA:BEGIN...DATA:END) — returns the assembled text
+function usbReceiveTextFrame(timeoutMs = 30000) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      usbFrameResolve = null;
+      usbFrameBuffer = null;
+      usbFrameType = null;
+      reject(new Error('Frame receive timeout'));
+    }, timeoutMs);
+    usbFrameResolve = (result) => {
+      clearTimeout(timer);
+      resolve(result);
+    };
+  });
+}
+
+// Receive a binary data frame (BINDATA:BEGIN...BINDATA:END) — returns Uint8Array
+function usbReceiveBinaryFrame(timeoutMs = 60000) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      usbFrameResolve = null;
+      usbFrameBuffer = null;
+      usbFrameType = null;
+      reject(new Error('Frame receive timeout'));
+    }, timeoutMs);
+    usbFrameResolve = (result) => {
+      clearTimeout(timer);
+      resolve(result);
+    };
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Connection test (IP and USB)
+// ---------------------------------------------------------------------------
+
 async function clockTestConnection() {
+  if (clockMode === 'usb') {
+    await clockUsbTestConnection();
+    return;
+  }
+  // IP mode
   const ip = document.getElementById('clock_ip').value.trim();
   if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
   setClockStatus(null, 'Connecting\u2026');
   try {
-    // Retry loop: first attempt may time out if the ESP32's TCP stack needs
-    // time to establish the initial connection (modem sleep / SYN retransmit).
     let resp;
     for (let attempt = 0; attempt < 2; attempt++) {
       const ctrl = new AbortController();
@@ -1706,7 +1947,7 @@ async function clockTestConnection() {
       try {
         resp = await fetch(clockBaseUrl() + '/status', { signal: ctrl.signal });
         clearTimeout(timer);
-        break; // success
+        break;
       } catch (e) {
         clearTimeout(timer);
         if (attempt === 1 || e.name !== 'AbortError') throw e;
@@ -1721,7 +1962,7 @@ async function clockTestConnection() {
     }
     let statusText = 'Connected' + (data.version ? ' (' + data.version.trim() + ')' : '');
     if (data.api_version !== undefined && data.api_version !== EXPECTED_API_VERSION) {
-      statusText += ' — API version mismatch (firmware: ' + data.api_version + ', editor expects: ' + EXPECTED_API_VERSION + ')';
+      statusText += ' \u2014 API version mismatch (firmware: ' + data.api_version + ', editor expects: ' + EXPECTED_API_VERSION + ')';
       setClockStatus(false, statusText);
       showToast('API version mismatch: firmware v' + data.api_version + ', editor expects v' + EXPECTED_API_VERSION + '. Some features may not work.', 'warning');
     } else {
@@ -1735,11 +1976,141 @@ async function clockTestConnection() {
   }
 }
 
+async function clockUsbTestConnection() {
+  if (!usb_port || !usb_port.writable) {
+    showToast('Please connect USB first.', 'warning');
+    return;
+  }
+  try {
+    const resp = await clockUsbSendCmd('SYS:STATUS', 5000);
+    if (resp.startsWith('OK:STATUS=')) {
+      const parts = resp.substring(10).split(',');
+      const version = parts[0] || '';
+      const apiVer = parseInt(parts[1]) || 0;
+      const mv = version.match(/^v?(\d+)/i);
+      if (mv) clockMajorVersion = parseInt(mv[1]);
+      let statusText = 'Connected (' + version + ')';
+      if (apiVer !== EXPECTED_API_VERSION) {
+        statusText += ' \u2014 API mismatch';
+      }
+      setClockUsbStatus(true, statusText);
+      showToast('Connected via USB.', 'success');
+    } else {
+      setClockUsbStatus(false, resp);
+    }
+  } catch (e) {
+    setClockUsbStatus(false, 'Error: ' + e.message);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// USB Connect/Disconnect for Clock tab
+// ---------------------------------------------------------------------------
+
+async function clockUsbToggleConnect() {
+  if (usb_port) {
+    // Already connected (possibly via Debug tab) — just share it
+    if (wifi_usb_connected || usb_handshakeDone) {
+      setClockUsbStatus(true, 'Connected (shared)');
+      clockUsbLog('Using existing USB connection', 'wifi-sys');
+      // Query status
+      try { await clockUsbTestConnection(); } catch(e) {}
+      document.getElementById('btnClockUsbConnect').textContent = 'Disconnect USB';
+      return;
+    }
+    // Disconnect
+    await usbDisconnect();
+    setClockUsbStatus(null, 'Disconnected');
+    document.getElementById('btnClockUsbConnect').textContent = 'Connect USB';
+    return;
+  }
+
+  if (!('serial' in navigator)) {
+    showToast('Web Serial API not available \u2014 Chrome/Edge only.', 'danger');
+    return;
+  }
+  try {
+    usb_port = await navigator.serial.requestPort();
+    const baud = parseInt(document.getElementById('clock-usb-baud').value);
+    await usb_port.open({ baudRate: baud });
+    try { await usb_port.setSignals({ dataTerminalReady: false, requestToSend: false }); } catch(e) {}
+
+    usb_handshakeDone = false;
+    usb_bootBuffer = [];
+    usb_readActive = true;
+
+    setClockUsbStatus(null, 'Connecting...');
+    clockUsbLog('Connecting @ ' + baud + ' baud...', 'wifi-sys');
+
+    usbReadLoop();
+
+    const delay = parseInt(document.getElementById('clock-usb-reset-delay').value);
+    await usbSleep(delay);
+
+    clockUsbLog('Sending handshake (0x55)...', 'wifi-sys');
+    await usbWriteRaw(USB_HANDSHAKE_BYTE);
+    const ok = await usbWaitForReady(3000);
+
+    usb_handshakeDone = true;
+    wifi_usb_connected = true;
+    usbSetPhase('connected');
+
+    if (ok) {
+      setClockUsbStatus(null, 'Initializing...');
+      clockUsbLog('Handshake OK \u2014 waiting for clock to finish booting...', 'wifi-sys');
+      await usbSleep(2000);
+      setClockUsbStatus(true, 'Connected');
+      clockUsbLog('Clock ready.', 'wifi-sys');
+    } else {
+      setClockUsbStatus(true, 'Connected (no handshake)');
+      clockUsbLog('No OK:READY \u2014 connected directly', 'wifi-err');
+    }
+
+    document.getElementById('btnClockUsbConnect').textContent = 'Disconnect USB';
+
+    // Auto-test status
+    try { await clockUsbTestConnection(); } catch(e) {}
+
+  } catch(e) {
+    if (e.name !== 'NotSelectedError') clockUsbLog('Error: ' + e.message, 'wifi-err');
+    setClockUsbStatus(false, 'Failed');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Config transfer (IP and USB)
+// ---------------------------------------------------------------------------
+
 async function clockUploadConfig() {
+  const text = generateConfig();
+  if (clockMode === 'usb') {
+    if (!usb_port || !usb_port.writable) { showToast('Please connect USB first.', 'warning'); return; }
+    clockUsbLog('Uploading config...', 'wifi-sys');
+    try {
+      const encoder = new TextEncoder();
+      const w = usb_port.writable.getWriter();
+      await w.write(encoder.encode('FILE:UPLOAD=config.txt\r\n'));
+      w.releaseLock();
+      clockUsbLog('>> FILE:UPLOAD=config.txt', 'wifi-sys');
+      await usbSleep(100);
+      await usbSendBinaryFrame(encoder.encode(text).buffer);
+      const resp = await usbWaitForLine('OK:', 10000);
+      clockUsbLog(resp, resp.startsWith('ERR:') ? 'wifi-err' : 'wifi-rx');
+      if (resp.startsWith('OK:')) {
+        showToast('Config uploaded to clock via USB.', 'success');
+      } else {
+        showToast('Config upload failed: ' + resp, 'danger');
+      }
+    } catch (err) {
+      clockUsbLog('Error: ' + err.message, 'wifi-err');
+      showToast('Upload failed: ' + err.message, 'danger');
+    }
+    return;
+  }
+  // IP mode
   const ip = document.getElementById('clock_ip').value.trim();
   if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
   try {
-    const text = generateConfig();
     const resp = await fetch(clockBaseUrl() + '/config', {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
@@ -1753,6 +2124,31 @@ async function clockUploadConfig() {
 }
 
 async function clockDownloadConfig() {
+  if (clockMode === 'usb') {
+    if (!usb_port || !usb_port.writable) { showToast('Please connect USB first.', 'warning'); return; }
+    clockUsbLog('Downloading config...', 'wifi-sys');
+    try {
+      const framePromise = usbReceiveBinaryFrame(30000);
+      const enc = new TextEncoder();
+      const cmdWriter = usb_port.writable.getWriter();
+      await cmdWriter.write(enc.encode('FILE:DOWNLOAD=config.txt\r\n'));
+      cmdWriter.releaseLock();
+      clockUsbLog('>> FILE:DOWNLOAD=config.txt', 'wifi-sys');
+      const binData = await framePromise;
+      const text = new TextDecoder().decode(binData);
+      clockUsbLog('Config received (' + text.length + ' bytes)', 'wifi-rx');
+      parseConfig(text);
+      renderAll();
+      configLoaded = true;
+      updateFileDisplay('config.txt (from clock via USB)');
+      showToast('Config downloaded from clock via USB.', 'success');
+    } catch (err) {
+      clockUsbLog('Error: ' + err.message, 'wifi-err');
+      showToast('Download failed: ' + err.message, 'danger');
+    }
+    return;
+  }
+  // IP mode
   const ip = document.getElementById('clock_ip').value.trim();
   if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
   try {
@@ -1761,6 +2157,7 @@ async function clockDownloadConfig() {
     const text = await resp.text();
     parseConfig(text);
     renderAll();
+    configLoaded = true;
     updateFileDisplay('config.txt (from clock)');
     showToast('Config downloaded from clock.', 'success');
   } catch (err) {
@@ -1768,13 +2165,78 @@ async function clockDownloadConfig() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Download default config from URL
+// ---------------------------------------------------------------------------
+
+async function clockDownloadDefaultConfig() {
+  const btn = document.getElementById('btnClockDownloadDefaultConfig');
+  btn.disabled = true;
+  const origText = btn.textContent;
+  btn.textContent = 'Downloading...';
+  try {
+    const resp = await fetch('https://lisy.dev/swrep/misc/LISYclock/SD_Card/default_config.txt');
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const text = await resp.text();
+    parseConfig(text);
+    state._fileHandle = null;
+    renderAll();
+    configLoaded = true;
+    updateFileDisplay('default_config.txt');
+    showToast('Default config loaded.', 'success');
+  } catch (err) {
+    showToast('Download failed: ' + err.message, 'danger');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = origText;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// File upload (IP and USB)
+// ---------------------------------------------------------------------------
+
 async function clockUploadFile() {
-  const ip = document.getElementById('clock_ip').value.trim();
-  if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
   const fileInput = document.getElementById('clockFileInput');
   const file = fileInput.files[0];
   if (!file) { showToast('Please select a file.', 'warning'); return; }
   const statusEl = document.getElementById('clockFileStatus');
+
+  if (clockMode === 'usb') {
+    if (!usb_port || !usb_port.writable) { showToast('Please connect USB first.', 'warning'); return; }
+    if (file.size > 100000) {
+      if (!confirm('File is larger than 100 KB (' + Math.round(file.size/1024) + ' KB). USB transfer will be slow. Continue?')) return;
+    }
+    statusEl.textContent = 'Uploading via USB\u2026';
+    clockUsbLog('Uploading file: ' + file.name + ' (' + file.size + ' bytes)', 'wifi-sys');
+    try {
+      const encoder = new TextEncoder();
+      const w = usb_port.writable.getWriter();
+      await w.write(encoder.encode('FILE:UPLOAD=' + file.name + '\r\n'));
+      w.releaseLock();
+      clockUsbLog('>> FILE:UPLOAD=' + file.name, 'wifi-sys');
+      await usbSleep(100);
+      const buf = await file.arrayBuffer();
+      await usbSendBinaryFrame(buf);
+      const resp = await usbWaitForLine('OK:', 10000);
+      clockUsbLog(resp, resp.startsWith('ERR:') ? 'wifi-err' : 'wifi-rx');
+      if (resp.startsWith('OK:')) {
+        statusEl.textContent = 'Uploaded: ' + file.name;
+        showToast('File uploaded via USB: ' + file.name, 'success');
+      } else {
+        statusEl.textContent = 'Failed';
+        showToast('File upload failed: ' + resp, 'danger');
+      }
+    } catch (err) {
+      statusEl.textContent = 'Failed';
+      clockUsbLog('Error: ' + err.message, 'wifi-err');
+      showToast('File upload failed: ' + err.message, 'danger');
+    }
+    return;
+  }
+  // IP mode
+  const ip = document.getElementById('clock_ip').value.trim();
+  if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
   statusEl.textContent = 'Uploading\u2026';
   try {
     const body = await file.arrayBuffer();
@@ -1791,8 +2253,25 @@ async function clockUploadFile() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Reboot (IP and USB)
+// ---------------------------------------------------------------------------
+
 async function clockReboot() {
-  if (!confirm('Really reboot the clock?')) return;
+  if (!await showConfirm('Really reboot the clock?')) return;
+
+  if (clockMode === 'usb') {
+    if (!usb_port || !usb_port.writable) { showToast('Please connect USB first.', 'warning'); return; }
+    try {
+      const resp = await clockUsbSendCmd('SYS:REBOOT', 5000);
+      clockUsbLog(resp, 'wifi-rx');
+      showToast('Reboot command sent. Clock is restarting\u2026', 'success');
+    } catch (e) {
+      showToast('Reboot command sent. Clock is restarting\u2026', 'success');
+    }
+    return;
+  }
+  // IP mode
   const ip = document.getElementById('clock_ip').value.trim();
   if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
   try {
@@ -1809,6 +2288,109 @@ async function clockReboot() {
     } else {
       showToast('Reboot failed: ' + err.message, 'danger');
     }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Set Clock Time (IP and USB)
+// ---------------------------------------------------------------------------
+
+async function clockSetTime() {
+  const statusEl = document.getElementById('clockSetTimeStatus');
+  const ts = Math.floor(Date.now() / 1000);
+
+  if (clockMode === 'usb') {
+    if (!usb_port || !usb_port.writable) { showToast('Please connect USB first.', 'warning'); return; }
+    clockUsbLog('Setting clock time to ' + new Date(ts * 1000).toLocaleString() + '...', 'wifi-sys');
+    statusEl.textContent = '';
+    try {
+      const resp = await clockUsbSendCmd('TIME:SET=' + ts, 5000);
+      if (resp.startsWith('OK:TIME_SET')) {
+        statusEl.textContent = 'Time set.';
+        clockUsbLog('Clock time updated.', 'wifi-rx');
+      } else {
+        statusEl.textContent = resp;
+        clockUsbLog(resp, 'wifi-err');
+      }
+    } catch (e) {
+      statusEl.textContent = 'Error: ' + e.message;
+      clockUsbLog('Error: ' + e.message, 'wifi-err');
+    }
+    return;
+  }
+  // IP mode
+  const ip = document.getElementById('clock_ip').value.trim();
+  if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
+  statusEl.textContent = '';
+  try {
+    const resp = await fetch(clockBaseUrl() + '/time', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ unix_timestamp: ts })
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    statusEl.textContent = 'Time set.';
+    showToast('Clock time set.', 'success');
+  } catch (err) {
+    statusEl.textContent = 'Failed: ' + err.message;
+    showToast('Set time failed: ' + err.message, 'danger');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Test WiFi Connection (USB only, reads from state.wifi)
+// ---------------------------------------------------------------------------
+
+async function clockWifiTest() {
+  if (!usb_port || !usb_port.writable) {
+    showToast('Please connect USB first.', 'warning');
+    return;
+  }
+  const ssid = state.wifi.ssid;
+  const pwd = state.wifi.pwd;
+  if (!ssid) {
+    showToast('Please enter an SSID in the General tab first.', 'warning');
+    return;
+  }
+  const dot = document.getElementById('clockWifiTestDot');
+  const statusEl = document.getElementById('clockWifiTestStatus');
+  dot.className = 'status-dot';
+  statusEl.textContent = 'Testing...';
+  clockUsbLog('Starting WiFi test...', 'wifi-sys');
+
+  try {
+    let resp = await clockUsbSendCmd('WIFI:SET_SSID=' + ssid, 5000);
+    if (!resp.includes('OK:SSID_SET')) {
+      dot.className = 'status-dot fail';
+      statusEl.textContent = 'Failed to set SSID';
+      return;
+    }
+    resp = await clockUsbSendCmd('WIFI:SET_PWD=' + pwd, 5000);
+    if (!resp.includes('OK:PWD_SET')) {
+      dot.className = 'status-dot fail';
+      statusEl.textContent = 'Failed to set password';
+      return;
+    }
+    resp = await clockUsbSendCmd('WIFI:TEST', 15000);
+    if (resp.startsWith('OK:WIFI_CONNECTED=')) {
+      const ip = resp.split('=')[1];
+      dot.className = 'status-dot ok';
+      statusEl.textContent = 'Connected! IP: ' + ip;
+      clockUsbLog('Success! IP: ' + ip, 'wifi-rx');
+      document.getElementById('clock_ip').value = ip;
+      localStorage.setItem('lisyclock_ip', ip);
+      state.wifi.enabled = true;
+      showToast('WiFi connected! IP: ' + ip, 'success');
+    } else {
+      dot.className = 'status-dot fail';
+      statusEl.textContent = 'Connection failed';
+      clockUsbLog('WiFi connection failed', 'wifi-err');
+      showToast('WiFi connection failed.', 'danger');
+    }
+  } catch (e) {
+    dot.className = 'status-dot fail';
+    statusEl.textContent = 'Error: ' + e.message;
+    clockUsbLog('Error: ' + e.message, 'wifi-err');
   }
 }
 
@@ -2020,45 +2602,103 @@ async function usbFlashESP32() {
 }
 
 async function clockRefreshFiles() {
+  const container = document.getElementById('clockFilesList');
+
+  if (clockMode === 'usb') {
+    if (!usb_port || !usb_port.writable) { showToast('Please connect USB first.', 'warning'); return; }
+    container.textContent = 'Loading\u2026';
+    try {
+      const framePromise = usbReceiveTextFrame(15000);
+      const encoder = new TextEncoder();
+      const w = usb_port.writable.getWriter();
+      await w.write(encoder.encode('FILE:LIST\r\n'));
+      w.releaseLock();
+      clockUsbLog('>> FILE:LIST', 'wifi-sys');
+      const jsonText = await framePromise;
+      clockUsbLog('File list received', 'wifi-rx');
+      const data = JSON.parse(jsonText);
+      renderFileList(container, data.files || []);
+    } catch (err) {
+      container.textContent = '';
+      clockUsbLog('Error: ' + err.message, 'wifi-err');
+      showToast('Failed to list files: ' + err.message, 'danger');
+    }
+    return;
+  }
+  // IP mode
   const ip = document.getElementById('clock_ip').value.trim();
   if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
-  const container = document.getElementById('clockFilesList');
   container.textContent = 'Loading\u2026';
   try {
     const resp = await fetch(clockBaseUrl() + '/files');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
-    const files = data.files || [];
-    if (files.length === 0) {
-      container.textContent = 'No files on SD card.';
-      return;
-    }
-    const table = document.createElement('table');
-    table.className = 'table table-sm table-bordered';
-    table.innerHTML = '<thead><tr><th>Name</th><th>Size</th><th>Date</th><th></th></tr></thead>';
-    const tbody = document.createElement('tbody');
-    for (const f of files) {
-      const dateStr = (f.mtime > 0) ? new Date(f.mtime * 1000).toLocaleString() : '—';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td class="font-monospace">${escHtml(f.name)}</td>` +
-                     `<td class="text-end">${f.size}</td>` +
-                     `<td class="text-nowrap small">${escHtml(dateStr)}</td>` +
-                     `<td class="d-flex gap-1">` +
-                       `<button class="btn btn-outline-secondary btn-sm" onclick="clockDownloadSdFile(${escHtml(JSON.stringify(f.name))})">&#x2193;</button>` +
-                       `<button class="btn btn-outline-secondary btn-sm" onclick="clockRenameFile(${escHtml(JSON.stringify(f.name))})">Rename</button>` +
-                     `</td>`;
-      tbody.appendChild(tr);
-    }
-    table.appendChild(tbody);
-    container.innerHTML = '';
-    container.appendChild(table);
+    renderFileList(container, data.files || []);
   } catch (err) {
     container.textContent = '';
     showToast('Failed to list files: ' + err.message, 'danger');
   }
 }
 
+function renderFileList(container, files) {
+  if (files.length === 0) {
+    container.textContent = 'No files on SD card.';
+    return;
+  }
+  const table = document.createElement('table');
+  table.className = 'table table-sm table-bordered';
+  table.innerHTML = '<thead><tr><th>Name</th><th>Size</th><th>Date</th><th></th></tr></thead>';
+  const tbody = document.createElement('tbody');
+  for (const f of files) {
+    const dateStr = (f.mtime > 0) ? new Date(f.mtime * 1000).toLocaleString() : '\u2014';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="font-monospace">${escHtml(f.name)}</td>` +
+                   `<td class="text-end">${f.size}</td>` +
+                   `<td class="text-nowrap small">${escHtml(dateStr)}</td>` +
+                   `<td class="d-flex gap-1">` +
+                     `<button class="btn btn-outline-secondary btn-sm" onclick="clockDownloadSdFile(${escHtml(JSON.stringify(f.name))})">Download</button>` +
+                     `<button class="btn btn-outline-secondary btn-sm" onclick="clockRenameFile(${escHtml(JSON.stringify(f.name))})">Rename</button>` +
+                     `<button class="btn btn-outline-danger btn-sm" onclick="clockDeleteFile(${escHtml(JSON.stringify(f.name))})">Delete</button>` +
+                   `</td>`;
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  container.innerHTML = '';
+  container.appendChild(table);
+}
+
 async function clockDownloadSdFile(name) {
+  if (clockMode === 'usb') {
+    if (!usb_port || !usb_port.writable) { showToast('Please connect USB first.', 'warning'); return; }
+    // Check if large file
+    // We just warn, don't block
+    clockUsbLog('Downloading file: ' + name, 'wifi-sys');
+    try {
+      const framePromise = usbReceiveBinaryFrame(60000);
+      const encoder = new TextEncoder();
+      const w = usb_port.writable.getWriter();
+      await w.write(encoder.encode('FILE:DOWNLOAD=' + name + '\r\n'));
+      w.releaseLock();
+      clockUsbLog('>> FILE:DOWNLOAD=' + name, 'wifi-sys');
+      const data = await framePromise;
+      clockUsbLog('File received (' + data.length + ' bytes)', 'wifi-rx');
+      // Trigger download
+      const blob = new Blob([data]);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+      clockUsbLog('Error: ' + err.message, 'wifi-err');
+      showToast('Download failed: ' + err.message, 'danger');
+    }
+    return;
+  }
+  // IP mode
   const ip = document.getElementById('clock_ip').value.trim();
   if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
   try {
@@ -2081,6 +2721,23 @@ async function clockDownloadSdFile(name) {
 async function clockRenameFile(oldName) {
   const newName = prompt('New name:', oldName);
   if (!newName || newName === oldName) return;
+
+  if (clockMode === 'usb') {
+    if (!usb_port || !usb_port.writable) { showToast('Please connect USB first.', 'warning'); return; }
+    try {
+      const resp = await clockUsbSendCmd('FILE:RENAME=' + oldName + ',' + newName, 5000);
+      if (resp.startsWith('OK:')) {
+        showToast('Renamed "' + oldName + '" to "' + newName + '".', 'success');
+        clockRefreshFiles();
+      } else {
+        showToast('Rename failed: ' + resp, 'danger');
+      }
+    } catch (err) {
+      showToast('Rename failed: ' + err.message, 'danger');
+    }
+    return;
+  }
+  // IP mode
   const ip = document.getElementById('clock_ip').value.trim();
   if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
   try {
@@ -2097,6 +2754,39 @@ async function clockRenameFile(oldName) {
   }
 }
 
+async function clockDeleteFile(name) {
+  if (!await showConfirm('Delete "' + name + '"?')) return;
+
+  if (clockMode === 'usb') {
+    if (!usb_port || !usb_port.writable) { showToast('Please connect USB first.', 'warning'); return; }
+    try {
+      const resp = await clockUsbSendCmd('FILE:DELETE=' + name, 5000);
+      if (resp.startsWith('OK:')) {
+        showToast('Deleted "' + name + '".', 'success');
+        clockRefreshFiles();
+      } else {
+        showToast('Delete failed: ' + resp, 'danger');
+      }
+    } catch (err) {
+      showToast('Delete failed: ' + err.message, 'danger');
+    }
+    return;
+  }
+  // IP mode
+  const ip = document.getElementById('clock_ip').value.trim();
+  if (!ip) { showToast('Please enter an IP address.', 'warning'); return; }
+  try {
+    const resp = await fetch(clockBaseUrl() + '/files/' + encodeURIComponent(name), {
+      method: 'DELETE'
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    showToast('Deleted "' + name + '".', 'success');
+    clockRefreshFiles();
+  } catch (err) {
+    showToast('Delete failed: ' + err.message, 'danger');
+  }
+}
+
 function renderClock() {
   // Restore saved IP from localStorage
   const savedIp = localStorage.getItem('lisyclock_ip');
@@ -2105,6 +2795,8 @@ function renderClock() {
   if (location.protocol === 'https:') {
     document.getElementById('mixedContentWarning').classList.remove('d-none');
   }
+  // Restore saved mode
+  setClockMode(localStorage.getItem('lisyclock_mode') || 'ip');
 }
 
 // Clock input listeners — persist IP to localStorage
@@ -2114,10 +2806,14 @@ document.getElementById('clock_ip').addEventListener('input', function () {
 
 // Clock button wiring
 document.getElementById('btnClockTest').addEventListener('click', clockTestConnection);
+document.getElementById('btnClockUsbConnect').addEventListener('click', clockUsbToggleConnect);
 document.getElementById('btnClockUploadConfig').addEventListener('click', clockUploadConfig);
 document.getElementById('btnClockDownloadConfig').addEventListener('click', clockDownloadConfig);
+document.getElementById('btnClockDownloadDefaultConfig').addEventListener('click', clockDownloadDefaultConfig);
 document.getElementById('btnClockUploadFile').addEventListener('click', clockUploadFile);
 document.getElementById('btnClockReboot').addEventListener('click', clockReboot);
+document.getElementById('btnClockSetTime').addEventListener('click', clockSetTime);
+document.getElementById('btnClockWifiTest').addEventListener('click', clockWifiTest);
 document.getElementById('btnClockUpdate').addEventListener('click', clockUpdateFirmware);
 document.getElementById('btnFetchServerFw').addEventListener('click', clockFetchServerFirmware);
 document.getElementById('btnUsbFlash').addEventListener('click', usbFlashESP32);
@@ -2129,6 +2825,8 @@ document.getElementById('btnClockRefreshFiles').addEventListener('click', clockR
 
 let usb_port = null, usb_reader = null;
 let usb_readActive = false;
+let wifiCmdResolve = null;
+let wifi_usb_connected = false;
 let usb_handshakeDone = false;
 let usb_bootBuffer = [];
 let usb_hsInterval = null, usb_hsStart = 0;
@@ -2216,7 +2914,6 @@ async function usbConnect() {
       usbReadLoop();
       usbSetPhase('connected');
       usbLog(`Direkt verbunden @ ${baud} Baud`, 'usb-sys');
-      usbEnableInput(true);
     }
   } catch(e) {
     if (e.name !== 'NotSelectedError') usbLog('Fehler: ' + e.message, 'usb-err');
@@ -2241,13 +2938,93 @@ async function usbReadLoop() {
         if (!line) continue;
         if (!usb_handshakeDone) {
           usb_bootBuffer.push(line);
-        } else if (wifiCmdResolve && (line.startsWith('OK:') || line.startsWith('ERR:'))) {
-          // Active WiFi command waiting — resolve regardless of exact prefix
-          wifiLog(line, line.startsWith('ERR:') ? 'wifi-err' : 'wifi-rx');
+          continue;
+        }
+
+        // --- Data framing: TEXT ---
+        if (line.startsWith('DATA:BEGIN=') && !usbFrameType) {
+          usbFrameBuffer = '';
+          usbFrameType = 'text';
+          usbFrameLineCount = 0;
+          continue;
+        }
+        if (usbFrameType === 'text') {
+          if (line === 'DATA:END') {
+            const result = usbFrameBuffer;
+            usbFrameType = null;
+            // Send acknowledgement
+            if (usb_port && usb_port.writable) {
+              const enc = new TextEncoder();
+              const w = usb_port.writable.getWriter();
+              w.write(enc.encode('OK:DATA_RECEIVED\r\n'));
+              w.releaseLock();
+            }
+            if (usbFrameResolve) { usbFrameResolve(result); usbFrameResolve = null; }
+            continue;
+          }
+          usbFrameBuffer += line + '\n';
+          usbFrameLineCount++;
+          if (usbFrameLineCount % 8 === 0 && usb_port && usb_port.writable) {
+            const enc = new TextEncoder();
+            const w = usb_port.writable.getWriter();
+            w.write(enc.encode('OK:CHUNK_ACK\r\n'));
+            w.releaseLock();
+          }
+          continue;
+        }
+
+        // --- Data framing: BINARY ---
+        if (line.startsWith('BINDATA:BEGIN=') && !usbFrameType) {
+          usbFrameBuffer = [];
+          usbFrameType = 'binary';
+          usbFrameLineCount = 0;
+          continue;
+        }
+        if (usbFrameType === 'binary') {
+          if (line === 'BINDATA:END') {
+            // Assemble result
+            let totalLen = 0;
+            for (const chunk of usbFrameBuffer) totalLen += chunk.length;
+            const result = new Uint8Array(totalLen);
+            let offset = 0;
+            for (const chunk of usbFrameBuffer) {
+              result.set(chunk, offset);
+              offset += chunk.length;
+            }
+            usbFrameType = null;
+            usbFrameBuffer = null;
+            if (usb_port && usb_port.writable) {
+              const enc = new TextEncoder();
+              const w = usb_port.writable.getWriter();
+              w.write(enc.encode('OK:BINDATA_RECEIVED\r\n'));
+              w.releaseLock();
+            }
+            if (usbFrameResolve) { usbFrameResolve(result); usbFrameResolve = null; }
+            continue;
+          }
+          // Decode base64 line
+          try {
+            const binary = atob(line);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            usbFrameBuffer.push(bytes);
+          } catch(e) { /* skip invalid base64 line */ }
+          usbFrameLineCount++;
+          if (usbFrameLineCount % 8 === 0 && usb_port && usb_port.writable) {
+            const enc = new TextEncoder();
+            const w = usb_port.writable.getWriter();
+            w.write(enc.encode('OK:CHUNK_ACK\r\n'));
+            w.releaseLock();
+          }
+          continue;
+        }
+
+        // --- Normal line dispatch ---
+        if (wifiCmdResolve && (line.startsWith('OK:') || line.startsWith('ERR:'))) {
+          clockUsbLog(line, line.startsWith('ERR:') ? 'wifi-err' : 'wifi-rx');
           wifiCmdResolve(line); wifiCmdResolve = null;
         } else if (line.startsWith('OK:WIFI_') || line.startsWith('OK:SSID_') || line.startsWith('OK:PWD_') || line.startsWith('ERR:WIFI_')) {
-          // Unsolicited WiFi messages (e.g. status updates)
-          wifiLog(line, line.startsWith('ERR:') ? 'wifi-err' : 'wifi-rx');
+          clockUsbLog(line, line.startsWith('ERR:') ? 'wifi-err' : 'wifi-rx');
         } else {
           usbLog(line, 'usb-rx');
         }
@@ -2338,24 +3115,8 @@ function usbUpdateSignalDisplay(dtr, rts) {
 }
 
 // =============================================================================
-// WIFI TAB — USB-based WiFi Configuration
+// WIFI — state listeners and render (fields now in General tab)
 // =============================================================================
-
-let wifiCmdResolve = null;
-let wifi_usb_port = null;
-let wifi_usb_connected = false;
-
-function wifiLog(text, type = 'wifi-rx') {
-  const con = document.getElementById('wifi-console');
-  const line = document.createElement('div');
-  line.className = 'wifi-line';
-  const msg = document.createElement('span');
-  msg.className = type;
-  msg.textContent = text;
-  line.appendChild(msg);
-  con.appendChild(line);
-  con.scrollTop = con.scrollHeight;
-}
 
 function wifiTogglePwd() {
   const inp = document.getElementById('wifi_pwd');
@@ -2369,210 +3130,15 @@ function wifiTogglePwd() {
   }
 }
 
-function wifiSetUsbStatus(ok, text) {
-  const dot = document.getElementById('wifi-usb-dot');
-  dot.className = 'status-dot' + (ok === true ? ' ok' : ok === false ? ' fail' : '');
-  document.getElementById('wifi-usb-status').textContent = text || '';
-}
-
-function wifiSetTestStatus(ok, text) {
-  const dot = document.getElementById('wifi-test-dot');
-  dot.className = 'status-dot' + (ok === true ? ' ok' : ok === false ? ' fail' : '');
-  document.getElementById('wifi-test-status').textContent = text || '';
-}
-
-// Send a command over USB and wait for a response line
-function wifiSendCmd(cmd, timeoutMs = 15000) {
-  return new Promise(async (resolve, reject) => {
-    if (!usb_port || !usb_port.writable) {
-      reject(new Error('USB not connected'));
-      return;
-    }
-    wifiLog('>> ' + cmd, 'wifi-sys');
-    const timer = setTimeout(() => {
-      wifiCmdResolve = null;
-      reject(new Error('Timeout'));
-    }, timeoutMs);
-    wifiCmdResolve = (line) => {
-      clearTimeout(timer);
-      resolve(line);
-    };
-    const encoder = new TextEncoder();
-    const w = usb_port.writable.getWriter();
-    await w.write(encoder.encode(cmd + '\r\n'));
-    w.releaseLock();
-  });
-}
-
-async function wifiUsbToggleConnect() {
-  if (usb_port) {
-    // Already connected via Debug tab — share the connection
-    wifi_usb_connected = true;
-    wifiSetUsbStatus(true, 'Connected (shared)');
-    wifiLog('Using existing USB connection', 'wifi-sys');
-    // Query current status
-    try {
-      const resp = await wifiSendCmd('WIFI:STATUS', 5000);
-      wifiLog(resp, 'wifi-rx');
-    } catch(e) {}
-    return;
-  }
-  // Need to open a new USB connection
-  if (!('serial' in navigator)) {
-    wifiLog('Web Serial API not available — Chrome/Edge only.', 'wifi-err');
-    return;
-  }
-  try {
-    usb_port = await navigator.serial.requestPort();
-    const baud = parseInt(document.getElementById('wifi-baud').value);
-    await usb_port.open({ baudRate: baud });
-    try { await usb_port.setSignals({ dataTerminalReady: false, requestToSend: false }); } catch(e) {}
-
-    usb_handshakeDone = false;
-    usb_bootBuffer = [];
-    usb_readActive = true;
-
-    wifiSetUsbStatus(null, 'Connecting...');
-    wifiLog('Connecting @ ' + baud + ' baud...', 'wifi-sys');
-
-    usbReadLoop();
-
-    const delay = parseInt(document.getElementById('wifi-reset-delay').value);
-    await usbSleep(delay);
-
-    wifiLog('Sending handshake (0x55)...', 'wifi-sys');
-    await usbWriteRaw(USB_HANDSHAKE_BYTE);
-    const ok = await usbWaitForReady(3000);
-
-    if (ok) {
-      usb_handshakeDone = true;
-      wifi_usb_connected = true;
-      usbSetPhase('connected');
-      wifiSetUsbStatus(null, 'Clock initializing...');
-      wifiLog('Handshake OK — waiting for clock to finish booting...', 'wifi-sys');
-      await usbSleep(2000);   // give app_main time to complete WiFi/NVS init
-      wifiSetUsbStatus(true, 'Connected');
-      wifiLog('Clock ready.', 'wifi-sys');
-      // Query current WiFi status
-      try {
-        const resp = await wifiSendCmd('WIFI:STATUS', 5000);
-        // Parse response: OK:WIFI_STATUS=yes|no,ssid,ip
-        const m = resp.match(/^OK:WIFI_STATUS=(\w+),([^,]*),(.*)$/);
-        if (m) {
-          if (!document.getElementById('wifi_ssid').value.trim()) {
-            document.getElementById('wifi_ssid').value = m[2] || '';
-            state.wifi.ssid = m[2] || '';
-          }
-          if (m[1] === 'yes' && m[3] !== 'none') {
-            wifiSetTestStatus(true, 'Connected: ' + m[3]);
-          }
-        }
-      } catch(e) {}
-    } else {
-      usb_handshakeDone = true;
-      wifi_usb_connected = true;
-      wifiSetUsbStatus(true, 'Connected (no handshake)');
-      wifiLog('No OK:READY — connected directly', 'wifi-err');
-      usbSetPhase('connected');
-    }
-
-    document.getElementById('wifi-connect-btn').textContent = 'Disconnect USB';
-  } catch(e) {
-    if (e.name !== 'NotSelectedError') wifiLog('Error: ' + e.message, 'wifi-err');
-    wifiSetUsbStatus(false, 'Failed');
-  }
-}
-
-async function wifiTestConnection() {
-  if (!usb_port || !usb_port.writable) {
-    showToast('Please connect USB first.', 'warning');
-    return;
-  }
-
-  const ssid = document.getElementById('wifi_ssid').value.trim();
-  const pwd = document.getElementById('wifi_pwd').value;
-
-  if (!ssid) {
-    showToast('Please enter an SSID.', 'warning');
-    return;
-  }
-
-  wifiSetTestStatus(null, 'Testing...');
-  wifiLog('Starting WiFi test...', 'wifi-sys');
-
-  try {
-    // Send SSID
-    let resp = await wifiSendCmd('WIFI:SET_SSID=' + ssid, 5000);
-    if (!resp.includes('OK:SSID_SET')) {
-      wifiSetTestStatus(false, 'Failed to set SSID');
-      return;
-    }
-
-    // Send Password
-    resp = await wifiSendCmd('WIFI:SET_PWD=' + pwd, 5000);
-    if (!resp.includes('OK:PWD_SET')) {
-      wifiSetTestStatus(false, 'Failed to set password');
-      return;
-    }
-
-    // Test connection (longer timeout — WiFi connect takes ~10s)
-    resp = await wifiSendCmd('WIFI:TEST', 15000);
-
-    if (resp.startsWith('OK:WIFI_CONNECTED=')) {
-      const ip = resp.split('=')[1];
-      wifiSetTestStatus(true, 'Connected! IP: ' + ip);
-      wifiLog('Success! IP: ' + ip, 'wifi-rx');
-
-      // Fill clock IP field and save to localStorage
-      document.getElementById('clock_ip').value = ip;
-      localStorage.setItem('lisyclock_ip', ip);
-
-      // Update state
-      state.wifi.ssid = ssid;
-      state.wifi.pwd = pwd;
-      state.wifi.enabled = true;
-
-      showToast('WiFi connected! IP: ' + ip, 'success');
-    } else {
-      // Failed
-      wifiSetTestStatus(false, 'Connection failed');
-      wifiLog('WiFi connection failed', 'wifi-err');
-
-      // Clear SSID/PWD fields
-      document.getElementById('wifi_ssid').value = '';
-      document.getElementById('wifi_pwd').value = '';
-      state.wifi.ssid = '';
-      state.wifi.pwd = '';
-
-      showToast('WiFi connection failed. Credentials cleared.', 'danger');
-    }
-  } catch(e) {
-    wifiSetTestStatus(false, 'Error: ' + e.message);
-    wifiLog('Error: ' + e.message, 'wifi-err');
-  }
-}
-
-async function wifiSetTimeFromPC() {
-  const statusEl = document.getElementById('wifi-settime-status');
-  if (!usb_port || !usb_port.writable) {
-    wifiLog('USB not connected', 'wifi-err');
-    return;
-  }
-  const ts = Math.floor(Date.now() / 1000);
-  wifiLog('Setting clock time to ' + new Date(ts * 1000).toLocaleString() + '...', 'wifi-sys');
-  statusEl.textContent = '';
-  try {
-    const resp = await wifiSendCmd('TIME:SET=' + ts, 5000);
-    if (resp.startsWith('OK:TIME_SET')) {
-      statusEl.textContent = 'Time set.';
-      wifiLog('Clock time updated.', 'wifi-rx');
-    } else {
-      statusEl.textContent = resp;
-      wifiLog(resp, 'wifi-err');
-    }
-  } catch(e) {
-    statusEl.textContent = 'Error: ' + e.message;
-    wifiLog('Error: ' + e.message, 'wifi-err');
+function ftpTogglePwd() {
+  const inp = document.getElementById('ftp_pwd');
+  const btn = inp.nextElementSibling;
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    btn.textContent = 'Hide';
+  } else {
+    inp.type = 'password';
+    btn.textContent = 'Show';
   }
 }
 
@@ -2632,5 +3198,18 @@ buildDaysFields();
 renderAll();
 
 </script>
+
+<!-- Custom confirm dialog (replaces native confirm() to avoid browser prefix text) -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-body" id="confirmModalMsg"></div>
+      <div class="modal-footer p-2">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger btn-sm" id="confirmModalOk">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

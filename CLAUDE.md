@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A standalone browser app (no server, no build step) for editing LISYclock 2.35 `config.txt` files. The entire application is a single self-contained `LISYclock_config_editor.html` (~1095 lines). Open it directly in a browser — no local server needed.
+A standalone browser app (no server, no build step) for editing LISYclock `config.txt` files (compatible with firmware v1.43 / v2.43). The entire application is a single self-contained `LISYclock_config_editor.html` (~1095 lines). Open it directly in a browser — no local server needed.
 
 ## Development
 
@@ -57,12 +57,12 @@ Render functions are **destructive** (they do `innerHTML = ''` and rebuild from 
 
 Die Firmware befindet sich in `../LISYclock/` (relativ zu diesem Verzeichnis).
 
-**API-Vertrag:** [`../API.md`](../API.md) ist die Single Source of Truth für alle HTTP-Endpunkte.
+**API-Vertrag:** [`API.md`](API.md) ist die Referenzkopie der HTTP-API für diesen Editor. Die autoritative Kopie liegt in `../LISYclock/API.md`. Sync via `../sync_api.ps1`.
 
-**Erwartete API-Version:** `1` (definiert als `EXPECTED_API_VERSION` in `LISYclock_config_editor.html`)
+**Erwartete API-Version:** `2` (definiert als `EXPECTED_API_VERSION` in `LISYclock_config_editor.html`)
 
 **Regeln:**
-- Wenn du einen neuen Endpunkt im Editor nutzen möchtest, muss er zuerst in der Firmware (`../LISYclock/main/httpserver.c`) implementiert und in `../API.md` dokumentiert werden.
+- Wenn du einen neuen Endpunkt im Editor nutzen möchtest, muss er zuerst in der Firmware (`../LISYclock/main/httpserver.c`) implementiert und in `../LISYclock/API.md` dokumentiert werden.
 - Der Editor prüft beim Verbindungstest (`clockTestConnection`) ob `api_version` im `/status`-Response mit `EXPECTED_API_VERSION` übereinstimmt und zeigt eine Warnung bei Mismatch.
 - Default-Port ist **8080** (Port 80 ist intern von wifi-manager belegt).
 

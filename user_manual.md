@@ -1,6 +1,6 @@
 # LISYclock Config Editor – User Manual
 
-**Version 1.08** | Language: English
+**Version 1.11** | Language: English
 
 ---
 
@@ -15,8 +15,10 @@
 7. [Tab: GI LEDs](#7-tab-gi-leds)
 8. [Tab: Attract Mode](#8-tab-attract-mode)
 9. [Tab: TTS Settings](#9-tab-tts-settings)
-10. [config.txt – Format & Structure](#10-configtxt--format--structure)
-11. [Tips & Notes](#11-tips--notes)
+10. [Tab: Update](#10-tab-update)
+11. [Tab: Debug](#11-tab-debug)
+12. [config.txt – Format & Structure](#12-configtxt--format--structure)
+13. [Tips & Notes](#13-tips--notes)
 
 ---
 
@@ -26,7 +28,7 @@ The **LISYclock Config Editor** is a tool for conveniently editing the `config.t
 
 - Standalone application: a single `LISYclock_config_editor.html` file, no server, no build step
 - Simply open `LISYclock_config_editor.html` in your browser and get started
-- Supports direct upload/download to the LISYclock hardware via HTTP
+- Supports direct upload/download to the LISYclock hardware via IP (HTTP) or USB
 
 ![Full view of the editor with an open configuration file](pics/Full%20view%20of%20the%20editor%20with%20an%20open%20configuration%20file.jpg)
 
@@ -38,15 +40,15 @@ The **LISYclock Config Editor** is a tool for conveniently editing the `config.t
 
 | Browser | Support |
 |---------|---------|
-| **Chrome / Edge** (recommended) | Full support including File System Access API (native open/save dialog) |
-| Firefox / Safari | Functional, but uses `<input type=file>` / download link as fallback |
+| **Chrome / Edge** (recommended) | Full support including File System Access API (native open/save dialog) and Web Serial API (USB connection) |
+| Firefox / Safari | Functional for file editing, but uses `<input type=file>` / download link as fallback; USB mode not supported |
 
 ### Starting
 
 1. Open `LISYclock_config_editor.html` from the project directory **locally** in your browser (double-click or `File → Open`)
 2. The application starts immediately with an empty default configuration
 
-> **Important:** For direct communication with the LISYclock (tab "Clock"), the file must be opened via `file://` – **not** via HTTPS. Background: browsers block HTTP requests (to the clock) from HTTPS pages for security reasons.
+> **Important:** For direct communication with the LISYclock via IP (tab "Clock"), the file must be opened via `file://` – **not** via HTTPS. Browsers block HTTP requests from HTTPS pages for security reasons. USB mode works regardless of how the file is opened.
 
 ---
 
@@ -61,21 +63,28 @@ The buttons in the **navigation bar** (top) control all file operations:
 | **Save As…** | Lets you choose a new target file and saves to it |
 | **New Configuration** | Resets all fields to default values (caution: unsaved changes will be lost) |
 
-The **current filename** is displayed in the center of the navigation bar. As long as no file has been opened, "(no file)" appears there.
+The **current filename** is displayed in the center of the navigation bar. As long as no file has been opened, "— no file open —" appears there.
 
 ---
 
 ## 4. Tab: Clock
 
-This tab enables direct communication with the LISYclock hardware over the local network.
+This tab enables direct communication with the LISYclock hardware. Choose between **IP Mode** (WiFi) and **USB Mode** (USB cable).
 
-### IP Address
+### Connection Mode
+
+Select the connection type using the radio buttons at the top of the tab:
+
+| Mode | Description |
+|------|-------------|
+| **IP Mode** | Connect to the clock over the local network via its IP address (requires WiFi) |
+| **USB Mode** | Connect to the clock directly via USB cable (Web Serial API, Chrome/Edge only) |
+
+### IP Mode
 
 Enter the IP address of your LISYclock (e.g. `192.168.1.42`). The address is saved in the browser and automatically pre-filled the next time you open the editor.
 
-### Connection Test
-
-Clicking **Test Connection** checks whether the clock is reachable:
+Clicking **Connect Clock** checks whether the clock is reachable:
 
 | Display | Meaning |
 |---------|---------|
@@ -85,38 +94,55 @@ Clicking **Test Connection** checks whether the clock is reachable:
 
 On successful connection, the **firmware version** and **API version** are shown. If the API version does not match the expected version, a **warning** is displayed (functions may still be partially usable).
 
-### Configuration
+### USB Mode
+
+| Setting | Description |
+|---------|-------------|
+| **Baud Rate** | Serial communication speed; default: 115200 |
+| **Reset Delay** | Wait time after connect before handshake is sent; default: 1500 ms |
+
+Click **Connect USB** to establish the connection. The status dot indicates the state:
+
+| Display | Meaning |
+|---------|---------|
+| Grey | Disconnected |
+| Yellow (pulsing) | Handshaking |
+| Green | Connected |
+
+> **Note:** The clock reboots once when you click *Connect USB*. This is normal — the reboot triggers the USB handshake. Wait for the status to show *Connected*.
+
+### Test WiFi Connection (USB only)
+
+When connected via USB, click **Test WiFi Connection** to send the SSID and password from the General tab to the clock and verify the WiFi connection. The status dot shows the result.
+
+### Config Transfer
 
 | Button | Function |
 |--------|----------|
-| **Upload Config** | Transfers the current (editor-displayed) configuration to the clock |
-| **Download Config** | Downloads the `config.txt` from the clock and opens it in the editor |
+| **Upload Config to Clock** | Transfers the current (editor-displayed) configuration to the clock |
+| **Download Config from Clock** | Downloads the `config.txt` from the clock and opens it in the editor |
 
-### Reboot
+### Set Clock Time
 
-Clicking **Reboot** restarts the LISYclock. A confirmation dialog prevents accidental restarts.
+Clicking **Set Clock Time from PC** synchronizes the clock's time with the PC's current date and time.
 
-### Firmware Update
+### Reboot Clock
 
-**Option A – Local file:**
-1. Select a `.bin` file using the file selection button
-2. Click **Upload & Reboot** – the file is transferred and the clock restarts automatically
+Clicking **Reboot Clock** restarts the LISYclock. A confirmation dialog prevents accidental restarts.
 
-**Option B – From lisy.dev server:**
-1. Connect to the clock first (so the editor knows whether v1 or v2 firmware is running)
-2. Click **Fetch versions** – a dropdown appears with all matching firmware files from lisy.dev
-3. Select the desired version from the dropdown
-4. Click **Upload & Reboot** – the file is downloaded from lisy.dev and transferred to the clock
+### Upload File to Clock
 
-> A progress indicator is shown during the upload. Do not close the browser tab.
-> When selecting from the server, the server dropdown takes priority over a locally selected file.
+Transfer any file (e.g. MP3, batch file) to the clock's SD card.
 
-### File Management on the SD Card
+### SD Card Files
 
-- **Upload file:** Transfer any file (e.g. MP3, batch) to the clock's SD card
-- **File list:** Use **Refresh** to load the current file list from the SD card
+- Use **Refresh** to load the current file list from the SD card
   - The list shows name, size, and modification **date** for each file
-  - Individual files can be **downloaded** or **renamed**
+  - Individual files can be **downloaded**, **renamed**, or **deleted**
+
+### Protocol Log (USB only)
+
+When in USB mode, a protocol log panel shows all serial communication between the editor and the clock.
 
 ### HTTPS Warning
 
@@ -129,6 +155,16 @@ If the editor is opened via an HTTPS URL, the browser blocks all HTTP requests t
 General settings for the LISYclock.
 
 ![General tab](pics/General%20tab.jpg)
+
+### WiFi Settings
+
+| Field | Description |
+|-------|-------------|
+| Enabled (checkbox) | Enable/disable WiFi (`WIFI_ENABLE=yes` / `WIFI_ENABLE=no`) |
+| SSID | WiFi network name |
+| Password | WiFi password (Show/Hide toggle available) |
+
+> WiFi credentials are stored in `config.txt`. Use **Test WiFi Connection** in the Clock tab (USB mode) to verify that the credentials work.
 
 ### Display Brightness
 
@@ -193,15 +229,15 @@ The **time** of an event is specified as `HH:MM:W` or `HH:MM-DD.MM.YYYY`. `*` st
 | `MM` | Minute (0–59), `*` = every minute |
 | `W` | Weekday: 0 = Sunday, 1 = Monday, … 6 = Saturday, `*` = daily |
 
-#### Date Mode: `HH:MM-TT.MM.JJJJ`
+#### Date Mode: `HH:MM-DD.MM.YYYY`
 
 Active when `*` (date) is selected in the weekday field. The date field then appears additionally.
 
 | Field | Meaning |
 |-------|---------|
-| `TT` | Day (1–31), `*` = every day |
+| `DD` | Day (1–31), `*` = every day |
 | `MM` | Month (1–12), `*` = every month |
-| `JJJJ` | Year (four digits), `*` = every year |
+| `YYYY` | Year (four digits), `*` = every year |
 
 #### Examples
 
@@ -215,7 +251,7 @@ Active when `*` (date) is selected in the weekday field. The date field then app
 
 ### Controls
 
-- **+ Add Event** (bottom button): Adds a new event entry at the end of the list
+- **+ Add Event** (top-right button): Adds a new event entry at the end of the list
 - **✕** (to the right of an event): Removes that event
 
 ---
@@ -287,7 +323,72 @@ Settings for the Text-to-Speech function (uses the WIT.ai service).
 
 ---
 
-## 10. config.txt – Format & Structure
+## 10. Tab: Update
+
+The Update tab provides three ways to update the LISYclock firmware.
+
+### Upload local firmware file (IP mode only)
+
+1. Select a `.bin` firmware file using the file selection button
+2. Click **Update & Reboot** — the file is transferred to the SD card as `update.bin` and the clock restarts automatically to apply the update
+
+### Or select from lisy.dev
+
+1. First connect to the clock in the Clock tab (IP mode) so the editor knows whether v1 or v2 firmware is running
+2. Click **Fetch versions** — a dropdown appears with all matching firmware files from lisy.dev
+3. Select the desired version from the dropdown
+4. Click **Update & Reboot** — the file is downloaded from lisy.dev and transferred to the clock
+
+> When a server version is selected, it takes priority over a locally selected file.
+
+### Flash via USB (full installation, USB mode only)
+
+Click **Flash via USB** to write the complete firmware package (bootloader, firmware binary, partition table, and OTA data) directly to the ESP32 via USB. No WiFi connection required.
+
+> Chrome/Edge only. A progress log is shown below the button during flashing. Do not disconnect the USB cable until flashing is complete.
+
+---
+
+## 11. Tab: Debug
+
+The Debug tab provides a raw USB serial console for advanced users and developers.
+
+### Connection
+
+Select the **Baud Rate** (default: 115200) and **Reset Delay** (default: 1500 ms), then click **CONNECT**. The status dot indicates the connection state:
+
+| State | Meaning |
+|-------|---------|
+| Red | Disconnected |
+| Yellow (pulsing) | Handshaking — waiting for ESP32 reset |
+| Green (pulsing) | Connected |
+
+The DTR/RTS signal states are shown in the top-right corner.
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| **Handshake** | Enable/disable the `0x55` → `OK:READY` handshake protocol. Disable for direct raw monitoring |
+| **Boot Logs** | Show/hide ESP32 boot log lines |
+| **Auto-Scroll** | Automatically scroll to the latest output |
+| **Timestamp** | Add a timestamp to each received line |
+
+### Line Ending
+
+Select the line ending appended to sent commands: `NL (\n)`, `CR+NL`, `CR`, or `None`.
+
+### Console
+
+The console shows all serial output from the ESP32 with color-coded lines:
+- Green: received data
+- Orange: system messages
+- Red: errors
+- Dark grey: boot messages (when Boot Logs is enabled)
+
+---
+
+## 12. config.txt – Format & Structure
 
 ### Basic Format
 
@@ -313,6 +414,9 @@ KEY=value
 ### Example Excerpt
 
 ```
+WIFI_ENABLE=yes
+WIFI_SSID="MyNetwork"
+WIFI_PWD="MyPassword"
 DISP_BRIGHT=5
 #FTP_USER=lisy
 #FTP_PWD=lisy
@@ -324,11 +428,11 @@ EVENT_TTS=8:0:*,"Good morning!"
 
 ---
 
-## 11. Tips & Notes
+## 13. Tips & Notes
 
-- **Use Chrome or Edge:** Only these browsers support the File System Access API for native open/save dialogs. In Firefox and Safari, standard file pickers or download links appear instead.
+- **Use Chrome or Edge:** Only these browsers support the File System Access API for native open/save dialogs and the Web Serial API for USB mode. In Firefox and Safari, standard file pickers or download links appear instead, and USB mode is unavailable.
 
-- **Open locally for Clock access:** If communication with the LISYclock does not work, check whether `LISYclock_config_editor.html` is opened via `file://` (locally) and not via `https://`.
+- **Open locally for IP Clock access:** If communication with the LISYclock via IP does not work, check whether `LISYclock_config_editor.html` is opened via `file://` (locally) and not via `https://`.
 
 - **FTP as alternative:** The finished `config.txt` can also be transferred to the clock's SD card via FTP (if the FTP server is enabled in the configuration).
 
@@ -336,6 +440,8 @@ EVENT_TTS=8:0:*,"Good morning!"
 
 - **No undo function:** The editor has no undo function. If you make accidental changes, reopening the file (without saving first) will restore the previous state.
 
+- **USB connection shared between tabs:** When a USB connection is established in the Clock tab, it is automatically shared with the Debug tab and vice versa. There is only one USB connection at a time.
+
 ---
 
-*Created for LISYclock Config Editor v1.09*
+*Created for LISYclock Config Editor v1.11*
