@@ -176,7 +176,7 @@
 
 <!-- Navbar / Toolbar -->
 <nav class="navbar navbar-dark bg-dark px-3 py-2">
-  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.11</small></span>
+  <span class="navbar-brand fw-bold">&#128336; LISYclock Config Editor <small class="text-secondary fw-normal">v1.12</small></span>
   <span id="currentFileName" class="text-secondary text-truncate mx-auto"
         style="max-width:40%; font-size:0.85rem;" title="">&#8212; no file open &#8212;</span>
   <div class="d-flex gap-2 flex-wrap">
@@ -234,12 +234,12 @@
           <div class="row g-2">
             <div class="col-md-4 col-sm-6">
               <label class="form-label">SSID</label>
-              <input type="text" class="form-control" id="wifi_ssid" placeholder="Your WiFi network name">
+              <input type="text" class="form-control" id="wifi_ssid" placeholder="Your WiFi network name" autocomplete="off">
             </div>
             <div class="col-md-4 col-sm-6">
               <label class="form-label">Password</label>
               <div class="input-group">
-                <input type="password" class="form-control" id="wifi_pwd" placeholder="WiFi password">
+                <input type="password" class="form-control" id="wifi_pwd" placeholder="WiFi password" autocomplete="new-password">
                 <button class="btn btn-outline-secondary btn-sm" type="button" onclick="wifiTogglePwd()">Show</button>
               </div>
             </div>
@@ -261,7 +261,7 @@
             <div class="col-md-3 col-sm-5">
               <label class="form-label">FTP Password</label>
               <div class="input-group">
-                <input type="password" class="form-control" id="ftp_pwd">
+                <input type="password" class="form-control" id="ftp_pwd" autocomplete="new-password">
                 <button class="btn btn-outline-secondary btn-sm" type="button" onclick="ftpTogglePwd()">Show</button>
               </div>
             </div>
