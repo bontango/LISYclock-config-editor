@@ -1,7 +1,13 @@
-# LISYclock Config Editor
+> **This repository has been archived.**
+> The LISYclock Config Editor has moved to the [LISYclock monorepo](https://github.com/bontango/LISYclock) under `config_editor/`.
+> Please use that repository for all future development and issues.
+
+---
+
+# LISYclock Config Editor *(archived)*
 
 A standalone browser application for creating and editing
-[LISYclock](https://github.com/lisy) `config.txt` files.
+[LISYclock](https://github.com/bontango/LISYclock) `config.txt` files.
 No installation, no server — just open `LISYclock_config_editor.html` in Chrome or Edge.
 
 ## Requirements
@@ -52,17 +58,8 @@ The Clock tab supports two connection modes:
 
 See `config.txt` for a fully annotated example with all supported keys.
 
-## Project Structure
-
-```
-LISYclock_config_editor.html   — complete application (single self-contained file)
-config.txt                     — reference / sample configuration
-CLAUDE.md                      — developer notes for Claude Code
-Bedienungsanleitung.md         — user manual (German)
-user_manual.md                 — user manual (English)
-manuale_duso.md                — user manual (Italian)
-```
-
 ## Development
 
 No build step. Edit `LISYclock_config_editor.html` and refresh the browser to test.
+
+**Active development has moved to [github.com/bontango/LISYclock](https://github.com/bontango/LISYclock).**
